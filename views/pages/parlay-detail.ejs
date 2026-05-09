@@ -1,1 +1,285 @@
-<h1>Detail Clean Updated</h1>
+<%- include('../partials/topbar') %>
+<%- include('../partials/ticker') %>
+<%- include('../partials/slider') %>
+<%- include('../partials/auth-buttons') %>
+
+<main class="container single-clean-layout">
+
+  <article class="single-clean-card">
+
+    <div class="single-top">
+
+      <a
+        class="single-badge"
+        href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"
+      >
+        ⚽ <%= post.category || 'Prediksi Parlay' %>
+      </a>
+
+      <h1>
+        <%= post.title %>
+      </h1>
+
+      <div class="single-meta-clean">
+
+        <span>
+          🕒 <%= fmtDate(post.createdAt) %>
+        </span>
+
+        <span>
+          👤 <%= post.author || 'Master Parlay' %>
+        </span>
+
+      </div>
+
+    </div>
+
+    <% if (post.thumbnail) { %>
+
+      <div class="single-cover-wrap">
+
+        <img
+          class="single-cover-clean"
+          src="<%= post.thumbnail %>"
+          alt="<%= post.title %>"
+        >
+
+      </div>
+
+    <% } %>
+
+    <% const st = post.parlayStats || {}; %>
+
+    <section class="top-stats-clean">
+
+      <div class="stat-clean">
+
+        <small>Win Rate</small>
+
+        <strong>
+          <%= st.winRate || 90 %>%
+        </strong>
+
+      </div>
+
+      <div class="stat-clean">
+
+        <small>Confidence</small>
+
+        <strong>
+          <%= st.avgConfidence || 88 %>%
+        </strong>
+
+      </div>
+
+      <div class="stat-clean">
+
+        <small>Odds</small>
+
+        <strong>
+          <%= st.totalOdds || '5.32' %>
+        </strong>
+
+      </div>
+
+    </section>
+
+    <div class="article-content article-clean">
+
+      <%- post.content %>
+
+    </div>
+
+    <% if ((post.predictions || []).length) { %>
+
+      <section class="prediction-clean-section">
+
+        <div class="section-title-clean">
+
+          <h2>
+            Prediksi Pilihan Hari Ini
+          </h2>
+
+          <p>
+            Analisa pertandingan dengan tampilan yang lebih simple dan nyaman dibaca.
+          </p>
+
+        </div>
+
+        <% post.predictions.forEach(function(league){ %>
+
+          <div class="league-clean-title">
+
+            <span>🏆</span>
+
+            <h3>
+              <%= league.league %>
+            </h3>
+
+          </div>
+
+          <div class="match-clean-grid">
+
+            <% league.matches.forEach(function(match){ %>
+
+              <article class="match-clean-card">
+
+                <div class="match-clean-head">
+
+                  <span class="match-badge">
+
+                    🔥 <%= match.badge || 'Big Match' %>
+
+                  </span>
+
+                  <span class="match-status">
+
+                    <%= match.status || 'HOT' %>
+
+                  </span>
+
+                </div>
+
+                <h3 class="match-title-clean">
+
+                  <%= match.match %>
+
+                </h3>
+
+                <div class="match-time-clean">
+
+                  🕒 <%= match.time %>
+
+                </div>
+
+                <div class="pick-clean-box">
+
+                  🎯 PICK :
+                  <strong>
+                    <%= match.pick %>
+                  </strong>
+
+                </div>
+
+                <div class="odds-clean-row">
+
+                  <div>
+
+                    <small>Odds</small>
+
+                    <strong>
+                      <%= match.odds %>
+                    </strong>
+
+                  </div>
+
+                  <div>
+
+                    <small>Confidence</small>
+
+                    <strong>
+                      <%= match.confidence %>%
+                    </strong>
+
+                  </div>
+
+                </div>
+
+                <div class="bar-clean">
+
+                  <i style="width:<%= match.confidence %>%"></i>
+
+                </div>
+
+                <div class="form-clean">
+
+                  Form :
+                  <strong>
+                    <%= match.formHome || 'W-W-D' %>
+                  </strong>
+
+                </div>
+
+                <p class="reason-clean">
+
+                  <%= match.reason %>
+
+                </p>
+
+              </article>
+
+            <% }) %>
+
+          </div>
+
+        <% }) %>
+
+      </section>
+
+    <% } %>
+
+    <section class="builder-clean">
+
+      <h3>
+        💎 Parlay Builder
+      </h3>
+
+      <p>
+        Fokus pada 3–5 pertandingan dengan confidence tinggi untuk kombinasi yang lebih stabil.
+      </p>
+
+      <a
+        href="<%= settings.registerUrl || '#' %>"
+        class="builder-btn-clean"
+      >
+        CEK ODDS LIVE
+      </a>
+
+    </section>
+
+    <section class="note-clean">
+
+      <strong>
+        Catatan
+      </strong>
+
+      <p>
+        Prediksi ini hanya sebagai referensi analisa pertandingan dan bukan jaminan kemenangan.
+      </p>
+
+    </section>
+
+    <% if (related.length) { %>
+
+      <section class="related-clean">
+
+        <h3>
+          Prediksi Lainnya
+        </h3>
+
+        <div class="related-clean-grid">
+
+          <% related.forEach(function(item){ %>
+
+            <a href="<%= parlayUrl(item) %>">
+
+              <%= item.title %>
+
+            </a>
+
+          <% }) %>
+
+        </div>
+
+      </section>
+
+    <% } %>
+
+  </article>
+
+  <%- include('../partials/sidebar-blog', { latestPosts, ads }) %>
+
+</main>
+
+<%- include('../partials/footer') %>
+<%- include('../partials/quick-menu') %>
