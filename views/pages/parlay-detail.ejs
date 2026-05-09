@@ -74,7 +74,7 @@
 
       <div class="stat-clean">
 
-        <small>Odds</small>
+        <small>Odds Estimasi</small>
 
         <strong>
           <%= st.totalOdds || '5.32' %>
@@ -92,123 +92,73 @@
 
     <% if ((post.predictions || []).length) { %>
 
-      <section class="prediction-clean-section">
+      <section class="simple-prediction">
 
-        <div class="section-title-clean">
+        <h2 class="simple-title">
+          SARAN PREDIKSI PARLAY NANTI MALAM YANG LEBIH AKURAT
+        </h2>
 
-          <h2>
-            Prediksi Pilihan Hari Ini
-          </h2>
-
-          <p>
-            Analisa pertandingan dengan tampilan yang lebih simple dan nyaman dibaca.
-          </p>
-
+        <div class="simple-subtitle">
+          PREDIKSI PARLAY MALAM INI
         </div>
 
         <% post.predictions.forEach(function(league){ %>
 
-          <div class="league-clean-title">
+          <div class="league-block">
 
-            <span>🏆</span>
-
-            <h3>
+            <h3 class="league-name-simple">
               <%= league.league %>
             </h3>
 
-          </div>
+            <table class="prediksi-table-clean">
 
-          <div class="match-clean-grid">
+              <thead>
 
-            <% league.matches.forEach(function(match){ %>
+                <tr>
 
-              <article class="match-clean-card">
+                  <th>Match</th>
 
-                <div class="match-clean-head">
+                  <th>1X2</th>
 
-                  <span class="match-badge">
+                  <th>O/U</th>
 
-                    🔥 <%= match.badge || 'Big Match' %>
+                  <th>Skor</th>
 
-                  </span>
+                </tr>
 
-                  <span class="match-status">
+              </thead>
 
-                    <%= match.status || 'HOT' %>
+              <tbody>
 
-                  </span>
+                <% league.matches.forEach(function(match){ %>
 
-                </div>
+                  <tr>
 
-                <h3 class="match-title-clean">
+                    <td>
+                      <%= match.match %>
+                    </td>
 
-                  <%= match.match %>
+                    <td>
+                      <strong>
+                        <%= match.pick %>
+                      </strong>
+                    </td>
 
-                </h3>
+                    <td>
+                      <%= match.ou %>
+                    </td>
 
-                <div class="match-time-clean">
+                    <td>
+                      <%= match.score %>
+                    </td>
 
-                  🕒 <%= match.time %>
+                  </tr>
 
-                </div>
+                <% }) %>
 
-                <div class="pick-clean-box">
+              </tbody>
 
-                  🎯 PICK :
-                  <strong>
-                    <%= match.pick %>
-                  </strong>
-
-                </div>
-
-                <div class="odds-clean-row">
-
-                  <div>
-
-                    <small>Odds</small>
-
-                    <strong>
-                      <%= match.odds %>
-                    </strong>
-
-                  </div>
-
-                  <div>
-
-                    <small>Confidence</small>
-
-                    <strong>
-                      <%= match.confidence %>%
-                    </strong>
-
-                  </div>
-
-                </div>
-
-                <div class="bar-clean">
-
-                  <i style="width:<%= match.confidence %>%"></i>
-
-                </div>
-
-                <div class="form-clean">
-
-                  Form :
-                  <strong>
-                    <%= match.formHome || 'W-W-D' %>
-                  </strong>
-
-                </div>
-
-                <p class="reason-clean">
-
-                  <%= match.reason %>
-
-                </p>
-
-              </article>
-
-            <% }) %>
+            </table>
 
           </div>
 
@@ -218,25 +168,6 @@
 
     <% } %>
 
-    <section class="builder-clean">
-
-      <h3>
-        💎 Parlay Builder
-      </h3>
-
-      <p>
-        Fokus pada 3–5 pertandingan dengan confidence tinggi untuk kombinasi yang lebih stabil.
-      </p>
-
-      <a
-        href="<%= settings.registerUrl || '#' %>"
-        class="builder-btn-clean"
-      >
-        CEK ODDS LIVE
-      </a>
-
-    </section>
-
     <section class="note-clean">
 
       <strong>
@@ -244,7 +175,7 @@
       </strong>
 
       <p>
-        Prediksi ini hanya sebagai referensi analisa pertandingan dan bukan jaminan kemenangan.
+        Prediksi ini dibuat berdasarkan analisa pertandingan, statistik tim, performa terbaru, dan faktor pendukung lainnya. Gunakan prediksi secara bijak dan tetap atur manajemen permainan dengan baik.
       </p>
 
     </section>
