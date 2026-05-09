@@ -1,0 +1,102 @@
+<%- include('../partials/topbar') %>
+<%- include('../partials/ticker') %>
+<main class="container blog-layout single-layout">
+  <article class="single-post">
+    <a class="badge" href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"><%= post.category %></a>
+    <h1><%= post.title %></h1>
+    <div class="single-meta">By <strong><%= post.author %></strong> • <%= fmtDate(post.createdAt) %> • <% (post.tags || []).forEach(function(tag){ %><span>#<%= tag %></span> <% }) %></div>
+    <% if (post.thumbnail) { %><img class="single-cover" src="<%= post.thumbnail %>" alt="<%= post.title %>"><% } %>
+    <div class="article-content"><%- post.content %></div>
+    
+    <% const insights = post.insights || {}; %>
+    <section class="parlay-insight-box">
+      <div class="insight-head">
+        <span>Rekomendasi Pilihan</span>
+        <h2>Parlay 3 Tim Hari Ini</h2>
+        <p>Kombinasi pertandingan pilihan dengan peluang menarik untuk referensi parlay malam ini.</p>
+      </div>
+      <div class="parlay-combo-grid">
+        <% (insights.parlay3 || []).forEach(function(item, index){ %>
+          <div class="combo-card">
+            <div class="combo-num"><%= index + 1 %></div>
+            <div>
+              <strong><%= item.match %></strong>
+              <p><%= item.league %></p>
+              <div class="combo-pick">
+                <span><%= item.pick %></span>
+                <span><%= item.ou %></span>
+                <span>Skor <%= item.score %></span>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+      <% if (insights.estimatedOdds) { %>
+        <div class="odds-estimate">
+          <span>Estimasi Odds</span>
+          <strong><%= insights.estimatedOdds %></strong>
+        </div>
+      <% } %>
+    </section>
+
+    <% if (insights.safePick) { %>
+      <section class="safe-pick-box">
+        <div>
+          <span class="section-badge">Safe Pick</span>
+          <h3><%= insights.safePick.match %></h3>
+          <p><%= insights.safePick.league %></p>
+        </div>
+        <div class="safe-result">
+          <strong><%= insights.safePick.pick %></strong>
+          <span><%= insights.safePick.ou %> • <%= insights.safePick.score %></span>
+        </div>
+      </section>
+    <% } %>
+
+    <% if ((insights.bigMatches || []).length) { %>
+      <section class="big-match-box">
+        <div class="insight-head compact">
+          <span>Big Match</span>
+          <h2>Pertandingan Utama</h2>
+        </div>
+        <div class="big-match-list">
+          <% insights.bigMatches.forEach(function(item){ %>
+            <div class="big-match-item">
+              <strong><%= item.match %></strong>
+              <span><%= item.league %></span>
+              <b><%= item.pick %> / <%= item.ou %></b>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="winrate-box">
+      <span>Win Rate Rekomendasi</span>
+      <strong><%= insights.winRate || 72 %>%</strong>
+      <p>Persentase performa rekomendasi berdasarkan evaluasi pilihan pertandingan dan tren hasil terbaru.</p>
+    </section>
+
+    <% if ((post.predictions || []).length) { %>
+      <h2>SARAN PREDIKSI PARLAY NANTI MALAM YANG LEBIH AKURAT</h2>
+      <h3>PREDIKSI PARLAY MALAM INI</h3>
+      <% post.predictions.forEach(function(league){ %>
+        <h2 class="league-title"><%= league.league %></h2>
+        <table class="prediksi-table">
+          <thead><tr><th><%= league.league %></th><th>1X2</th><th>O/U</th><th>SKOR</th></tr></thead>
+          <tbody>
+            <% league.matches.forEach(function(match){ %>
+              <tr><td><%= match.match %></td><td><%= match.pick %></td><td><%= match.ou %></td><td><%= match.score %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% }) %>
+    <% } %>
+    <% if (related.length) { %>
+      <div class="related"><h3>Related Post</h3><div class="related-grid"><% related.forEach(function(item){ %><a href="/<%= item.slug %>"><%= item.title %></a><% }) %></div></div>
+    <% } %>
+  </article>
+  <%- include('../partials/sidebar-blog', { latestPosts, ads }) %>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/quick-menu') %>

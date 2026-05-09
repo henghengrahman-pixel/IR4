@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    :root{
+      --home-bg:url('<%= settings.backgroundImage || "https://cdn.om8k8.com/OMTAPRILBGOK.webp" %>');
+    }
+  </style>
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
+  <%- body %>
+  <%- include('../partials/scripts') %>
+</body>
+</html>
