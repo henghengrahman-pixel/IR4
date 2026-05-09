@@ -1,216 +1,981 @@
-<%- include('../partials/topbar') %>
-<%- include('../partials/ticker') %>
-<%- include('../partials/slider') %>
-<%- include('../partials/auth-buttons') %>
+import crypto from "crypto";
+import { readJson, writeJson } from "./json-db.js";
+import { getPosts, savePosts } from "./store.js";
+import { slugify, makeExcerpt } from "./slug.js";
+
+import {
+  getFixturesByDate,
+  normalizeFixture,
+  getPredictionByFixture,
+  normalizePrediction
+} from "./football-api.js";
+
+const TZ =
+  process.env.AUTO_PARLAY_TIMEZONE ||
+  "Asia/Jakarta";
+
+const STATUS_FILE =
+  "auto-parlay-status.json";
+
+const DEFAULT_THUMBNAIL =
+  process.env.AUTO_PARLAY_THUMBNAIL_URL ||
+  "https://i.ibb.co/RTFBCzGc/image.png";
+
+const DEFAULT_AUTHOR =
+  process.env.AUTO_PARLAY_AUTHOR ||
+  "Master Parlay";
+
+const PRIORITY_LEAGUES = [
+
+  {
+    key:"Liga Indonesia",
+    names:[
+      "Liga 1",
+      "BRI Liga 1",
+      "Indonesia Liga 1",
+      "Indonesia"
+    ],
+    score:100
+  },
+
+  {
+    key:"Premier League",
+    names:[
+      "Premier League",
+      "England Premier League"
+    ],
+    score:98
+  },
+
+  {
+    key:"Champions League",
+    names:[
+      "Champions League",
+      "UEFA Champions League"
+    ],
+    score:97
+  },
+
+  {
+    key:"Europa League",
+    names:[
+      "Europa League",
+      "UEFA Europa League"
+    ],
+    score:95
+  },
+
+  {
+    key:"La Liga",
+    names:[
+      "La Liga",
+      "Spain La Liga",
+      "Primera Division"
+    ],
+    score:94
+  },
+
+  {
+    key:"Serie A",
+    names:[
+      "Serie A",
+      "Italy Serie A"
+    ],
+    score:93
+  },
+
+  {
+    key:"Bundesliga",
+    names:[
+      "Bundesliga",
+      "Germany Bundesliga"
+    ],
+    score:92
+  },
+
+  {
+    key:"Ligue 1",
+    names:[
+      "Ligue 1",
+      "France Ligue 1"
+    ],
+    score:90
+  },
 
-<main class="container single-clean-layout">
+  {
+    key:"Saudi Pro League",
+    names:[
+      "Saudi Pro League"
+    ],
+    score:88
+  }
 
-  <article class="single-clean-card">
+];
 
-    <div class="single-top">
+const BLOCKED_KEYWORDS = [
 
-      <a
-        class="single-badge"
-        href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"
-      >
-        ⚽ <%= post.category || 'Prediksi Parlay' %>
-      </a>
+  "Women",
+  "Woman",
+  "Female",
+  "Feminine",
+  "Feminin",
+  "Ladies",
 
-      <h1>
-        <%= post.title %>
-      </h1>
+  "U15",
+  "U16",
+  "U17",
+  "U18",
+  "U19",
+  "U20",
+  "U21",
+  "U22",
+  "U23",
 
-      <div class="single-meta-clean">
+  "Youth",
+  "Reserve",
+  "Reserves",
 
-        <span>
-          🕒 <%= fmtDate(post.createdAt) %>
-        </span>
+  "Friendly",
+  "Friendlies",
 
-        <span>
-          👤 <%= post.author || 'Master Parlay' %>
-        </span>
+  "Amateur",
 
-      </div>
+  "Esoccer",
+  "E-soccer",
+  "Virtual"
 
-    </div>
+];
 
-    <% if (post.thumbnail) { %>
+let timer = null;
+let running = false;
 
-      <div class="single-cover-wrap">
+function blockedTeam(name = ""){
 
-        <img
-          class="single-cover-clean"
-          src="<%= post.thumbnail %>"
-          alt="<%= post.title %>"
-        >
+  const n =
+    String(name || "")
+      .toLowerCase()
+      .trim();
 
-      </div>
+  return (
 
-    <% } %>
+    n.includes(" women") ||
+    n.includes(" woman") ||
+    n.includes(" female") ||
+    n.includes(" feminine") ||
+    n.includes(" feminin") ||
+    n.includes(" ladies") ||
 
-    <% const st = post.parlayStats || {}; %>
+    n.endsWith(" w") ||
+    n.includes(" w ") ||
 
-    <section class="top-stats-clean">
+    n.includes(" u15") ||
+    n.includes(" u16") ||
+    n.includes(" u17") ||
+    n.includes(" u18") ||
+    n.includes(" u19") ||
+    n.includes(" u20") ||
+    n.includes(" u21") ||
+    n.includes(" u22") ||
+    n.includes(" u23") ||
 
-      <div class="stat-clean">
+    n.includes(" reserve") ||
+    n.includes(" reserves") ||
 
-        <small>Win Rate</small>
+    n.includes(" youth") ||
 
-        <strong>
-          <%= st.winRate || 90 %>%
-        </strong>
+    n.includes(" esoccer") ||
+    n.includes(" e-soccer") ||
 
-      </div>
+    n.includes(" virtual")
 
-      <div class="stat-clean">
+  );
+}
 
-        <small>Confidence</small>
+function cleanLeagueName(name = ""){
+  return String(name || "").trim();
+}
 
-        <strong>
-          <%= st.avgConfidence || 88 %>%
-        </strong>
+function getLeaguePriority(name = ""){
 
-      </div>
+  const leagueName =
+    cleanLeagueName(name)
+      .toLowerCase();
 
-      <div class="stat-clean">
+  if (!leagueName){
+    return null;
+  }
 
-        <small>Odds Estimasi</small>
+  if (
 
-        <strong>
-          <%= st.totalOdds || '5.32' %>
-        </strong>
+    BLOCKED_KEYWORDS.some(keyword =>
 
-      </div>
+      leagueName.includes(
+        keyword.toLowerCase()
+      )
 
-    </section>
+    )
 
-    <div class="article-content article-clean">
+  ){
+    return null;
+  }
 
-      <%- post.content %>
+  return PRIORITY_LEAGUES.find(item =>
 
-    </div>
+    item.names.some(n =>
 
-    <% if ((post.predictions || []).length) { %>
+      leagueName.includes(
+        n.toLowerCase()
+      )
 
-      <section class="simple-prediction">
+    )
 
-        <h2 class="simple-title">
-          SARAN PREDIKSI PARLAY NANTI MALAM YANG LEBIH AKURAT
-        </h2>
+  ) || null;
+}
 
-        <div class="simple-subtitle">
-          PREDIKSI PARLAY MALAM INI
-        </div>
+function allowedLeague(name = ""){
+  return !!getLeaguePriority(name);
+}
 
-        <% post.predictions.forEach(function(league){ %>
+function hashNum(text){
 
-          <div class="league-block">
+  const hex =
+    crypto
+      .createHash("sha256")
+      .update(String(text))
+      .digest("hex")
+      .slice(0, 8);
 
-            <h3 class="league-name-simple">
-              <%= league.league %>
-            </h3>
+  return parseInt(hex, 16);
+}
 
-            <table class="prediksi-table-clean">
+function formatWIB(value){
 
-              <thead>
+  if (!value){
+    return "-";
+  }
 
-                <tr>
+  const d =
+    new Date(value);
 
-                  <th>Match</th>
+  if (
+    Number.isNaN(
+      d.getTime()
+    )
+  ){
+    return "-";
+  }
 
-                  <th>1X2</th>
+  return (
+    new Intl.DateTimeFormat("id-ID", {
 
-                  <th>O/U</th>
+      timeZone: TZ,
 
-                  <th>Skor</th>
+      hour:"2-digit",
 
-                </tr>
+      minute:"2-digit",
 
-              </thead>
+      hour12:false
 
-              <tbody>
+    })
+    .format(d)
+    .replace(".", ":")
 
-                <% league.matches.forEach(function(match){ %>
+  ) + " WIB";
+}
 
-                  <tr>
+async function predictMatch(fixture){
 
-                    <td>
-                      <%= match.match %>
-                    </td>
+  let pick = "X";
 
-                    <td>
-                      <strong>
-                        <%= match.pick %>
-                      </strong>
-                    </td>
+  let score = "1 - 1";
 
-                    <td>
-                      <%= match.ou %>
-                    </td>
+  let ou = "UNDER 2.5";
 
-                    <td>
-                      <%= match.score %>
-                    </td>
+  let confidence = 60;
 
-                  </tr>
+  let percentHome = "";
 
-                <% }) %>
+  let percentDraw = "";
 
-              </tbody>
+  let percentAway = "";
 
-            </table>
+  try {
 
-          </div>
+    const predictionResult =
+      await getPredictionByFixture(
+        fixture.id
+      );
 
-        <% }) %>
+    if (
 
-      </section>
+      predictionResult.ok &&
+      predictionResult.prediction
 
-    <% } %>
+    ){
 
-    <section class="note-clean">
+      const normalized =
+        normalizePrediction(
+          predictionResult.prediction
+        );
 
-      <strong>
-        Catatan
-      </strong>
+      pick =
+        normalized.pick || "X";
 
-      <p>
-        Prediksi ini dibuat berdasarkan analisa pertandingan, statistik tim, performa terbaru, dan faktor pendukung lainnya. Gunakan prediksi secara bijak dan tetap atur manajemen permainan dengan baik.
-      </p>
+      score =
+        normalized.score || "1 - 1";
 
-    </section>
+      ou =
+        normalized.underOver || "UNDER 2.5";
 
-    <% if (related.length) { %>
+      percentHome =
+        normalized.percentHome || "";
 
-      <section class="related-clean">
+      percentDraw =
+        normalized.percentDraw || "";
 
-        <h3>
-          Prediksi Lainnya
-        </h3>
+      percentAway =
+        normalized.percentAway || "";
 
-        <div class="related-clean-grid">
+      const confidenceMap = {
 
-          <% related.forEach(function(item){ %>
+        "1":
+          parseInt(percentHome) || 60,
 
-            <a href="<%= parlayUrl(item) %>">
+        "X":
+          parseInt(percentDraw) || 55,
 
-              <%= item.title %>
+        "2":
+          parseInt(percentAway) || 60
 
-            </a>
+      };
 
-          <% }) %>
+      confidence =
+        confidenceMap[pick] || 60;
+    }
 
-        </div>
+    else {
 
-      </section>
+      const seed =
+        hashNum(
+          `${fixture.id}|${fixture.home}|${fixture.away}`
+        );
 
-    <% } %>
+      const fallbackScores = [
 
-  </article>
+        "1 - 0",
+        "2 - 0",
+        "2 - 1",
+        "3 - 1",
+        "3 - 0",
+        "1 - 1",
+        "2 - 2",
+        "0 - 1",
+        "0 - 2",
+        "1 - 2",
+        "1 - 3",
+        "4 - 1",
+        "4 - 2"
 
-  <%- include('../partials/sidebar-blog', { latestPosts, ads }) %>
+      ];
 
-</main>
+      score =
+        fallbackScores[
+          seed % fallbackScores.length
+        ];
 
-<%- include('../partials/footer') %>
-<%- include('../partials/quick-menu') %>
+      const parts =
+        score
+          .split("-")
+          .map(x =>
+            Number(
+              x.trim()
+            )
+          );
+
+      const homeGoals =
+        parts[0];
+
+      const awayGoals =
+        parts[1];
+
+      if (
+        homeGoals > awayGoals
+      ){
+        pick = "1";
+      }
+
+      else if (
+        awayGoals > homeGoals
+      ){
+        pick = "2";
+      }
+
+      else {
+        pick = "X";
+      }
+
+      ou =
+        homeGoals + awayGoals >= 3
+          ? "OVER 2.5"
+          : "UNDER 2.5";
+
+      confidence =
+        55 + (seed % 20);
+    }
+
+  } catch {
+
+    const seed =
+      hashNum(
+        `${fixture.id}|${fixture.home}|${fixture.away}`
+      );
+
+    const fallbackScores = [
+
+      "1 - 0",
+      "2 - 0",
+      "2 - 1",
+      "3 - 1",
+      "3 - 0",
+      "1 - 1",
+      "2 - 2",
+      "0 - 1",
+      "0 - 2",
+      "1 - 2",
+      "1 - 3",
+      "4 - 1",
+      "4 - 2"
+
+    ];
+
+    score =
+      fallbackScores[
+        seed % fallbackScores.length
+      ];
+
+    const parts =
+      score
+        .split("-")
+        .map(x =>
+          Number(
+            x.trim()
+          )
+        );
+
+    const homeGoals =
+      parts[0];
+
+    const awayGoals =
+      parts[1];
+
+    if (
+      homeGoals > awayGoals
+    ){
+      pick = "1";
+    }
+
+    else if (
+      awayGoals > homeGoals
+    ){
+      pick = "2";
+    }
+
+    else {
+      pick = "X";
+    }
+
+    ou =
+      homeGoals + awayGoals >= 3
+        ? "OVER 2.5"
+        : "UNDER 2.5";
+
+    confidence =
+      55 + (seed % 20);
+  }
+
+  return {
+
+    home:
+      fixture.home,
+
+    away:
+      fixture.away,
+
+    homeLogo:
+      fixture.homeLogo,
+
+    awayLogo:
+      fixture.awayLogo,
+
+    league:
+      fixture.league,
+
+    pick,
+
+    ou,
+
+    score,
+
+    percentHome,
+
+    percentDraw,
+
+    percentAway,
+
+    time:
+      fixture.date,
+
+    timeWib:
+      formatWIB(
+        fixture.date
+      ),
+
+    confidence
+
+  };
+}
+
+async function groupPredictions(fixtures){
+
+  const grouped =
+    new Map();
+
+  for (const raw of fixtures){
+
+    const f =
+      normalizeFixture(raw);
+
+    if (!f){
+      continue;
+    }
+
+    if (
+      !f.home ||
+      !f.away ||
+      !f.league
+    ){
+      continue;
+    }
+
+    if (
+      blockedTeam(f.home) ||
+      blockedTeam(f.away)
+    ){
+      continue;
+    }
+
+    if (
+      !allowedLeague(
+        f.league
+      )
+    ){
+      continue;
+    }
+
+    const prediction =
+      await predictMatch(f);
+
+    if (
+      !grouped.has(f.league)
+    ){
+      grouped.set(
+        f.league,
+        []
+      );
+    }
+
+    grouped
+      .get(f.league)
+      .push(prediction);
+  }
+
+  return [...grouped.entries()]
+
+    .sort((a,b)=>{
+
+      const ap =
+        getLeaguePriority(a[0])
+          ?.score || 0;
+
+      const bp =
+        getLeaguePriority(b[0])
+          ?.score || 0;
+
+      return bp - ap;
+
+    })
+
+    .map(([league, matches]) => ({
+
+      league,
+
+      matches:
+        matches
+          .sort((a,b)=>
+            b.confidence -
+            a.confidence
+          )
+          .slice(0, 10)
+
+    }))
+
+    .filter(x =>
+      x.matches.length
+    );
+}
+
+function buildHtmlContent(predictions){
+
+  return `
+
+<div class="prediction-wrapper">
+
+<h2 class="prediction-title">
+Prediksi Parlay Hari Ini
+</h2>
+
+<p class="prediction-desc">
+Berikut rangkuman pertandingan pilihan dari liga besar dunia dan Liga Indonesia yang memiliki peluang menarik untuk dijadikan referensi parlay hari ini.
+</p>
+
+${predictions.map(group => `
+
+<div class="prediction-table-wrap">
+
+<h2 class="league-title">
+${group.league}
+</h2>
+
+<table class="prediksi-table">
+
+<thead>
+
+<tr>
+
+<th>
+${group.league}
+</th>
+
+<th>1X2</th>
+
+<th>O/U</th>
+
+<th>SKOR</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${group.matches.map(m => `
+
+<tr>
+
+<td class="match-team-col">
+
+<div class="match-team-wrap">
+
+<div class="team-row">
+
+<img
+src="${m.homeLogo}"
+alt="${m.home}"
+loading="lazy"
+/>
+
+<span>
+${m.home}
+</span>
+
+</div>
+
+<div class="vs-text">
+VS
+</div>
+
+<div class="team-row">
+
+<img
+src="${m.awayLogo}"
+alt="${m.away}"
+loading="lazy"
+/>
+
+<span>
+${m.away}
+</span>
+
+</div>
+
+<small class="match-time">
+${m.timeWib}
+</small>
+
+</div>
+
+</td>
+
+<td>
+
+<strong>
+${m.pick}
+</strong>
+
+</td>
+
+<td class="ou-col">
+
+<strong>
+${m.ou}
+</strong>
+
+</td>
+
+<td class="score-col">
+
+<strong>
+${m.score}
+</strong>
+
+</td>
+
+</tr>
+
+`).join("")}
+
+</tbody>
+
+</table>
+
+</div>
+
+`).join("")}
+
+<div class="prediction-note">
+
+<h3>
+Catatan Prediksi
+</h3>
+
+<p>
+Prediksi ini dibuat sebagai tambahan referensi sebelum menentukan pilihan pertandingan. Tetap gunakan manajemen modal dengan baik dan bermain secara bijak.
+</p>
+
+</div>
+
+</div>
+
+`;
+}
+
+export async function getAutoParlayStatus(){
+
+  return readJson(
+    STATUS_FILE,
+    {
+      enabled:true,
+      running:false
+    }
+  );
+}
+
+export async function generateDailyParlay(){
+
+  if (running){
+    return;
+  }
+
+  running = true;
+
+  try {
+
+    const now =
+      new Date();
+
+    const date =
+      now
+        .toISOString()
+        .slice(0,10);
+
+    const apiResult =
+      await getFixturesByDate(date);
+
+    if (!apiResult.ok){
+
+      throw new Error(
+        apiResult.error
+      );
+    }
+
+    const predictions =
+      await groupPredictions(
+        apiResult.fixtures
+      );
+
+    const posts =
+      await getPosts({
+        includeDrafts:true
+      });
+
+    const title =
+      `Prediksi Bola Hari Ini ${date}`;
+
+    const slug =
+      slugify(title);
+
+    const content =
+      buildHtmlContent(
+        predictions
+      );
+
+    const post = {
+
+      id:
+        crypto.randomUUID(),
+
+      title,
+
+      slug,
+
+      category:
+        "Prediksi Parlay",
+
+      author:
+        DEFAULT_AUTHOR,
+
+      thumbnail:
+        DEFAULT_THUMBNAIL,
+
+      excerpt:
+        makeExcerpt(
+          "Prediksi bola hari ini lengkap dengan pertandingan pilihan dari liga besar dunia dan Liga Indonesia."
+        ),
+
+      content,
+
+      predictions,
+
+      published:true,
+
+      autoGenerated:true,
+
+      createdAt:
+        now.toISOString(),
+
+      updatedAt:
+        now.toISOString()
+    };
+
+    const filteredPosts =
+      posts.filter(post =>
+        !post.autoGenerated
+      );
+
+    filteredPosts.unshift(post);
+
+    await savePosts(
+      filteredPosts
+    );
+
+    await writeStatus({
+
+      running:false,
+
+      lastSuccessAt:
+        now.toISOString()
+
+    });
+
+    return {
+      ok:true
+    };
+
+  } catch (err){
+
+    await writeStatus({
+
+      running:false,
+
+      lastError:
+        err.message
+
+    });
+
+    return {
+
+      ok:false,
+
+      error:
+        err.message
+
+    };
+
+  } finally {
+
+    running = false;
+
+  }
+}
+
+async function writeStatus(update){
+
+  const current =
+    await readJson(
+      STATUS_FILE,
+      {}
+    );
+
+  const next = {
+
+    ...current,
+    ...update
+
+  };
+
+  await writeJson(
+    STATUS_FILE,
+    next
+  );
+
+  return next;
+}
+
+export function startAutoParlayScheduler(){
+
+  if (
+    process.env.AUTO_PARLAY_ENABLED ===
+    "false"
+  ){
+    return;
+  }
+
+  const scheduleNext = ()=>{
+
+    const delay =
+      1000 *
+      60 *
+      60 *
+      24;
+
+    timer =
+      setTimeout(async()=>{
+
+        await generateDailyParlay();
+
+        scheduleNext();
+
+      }, delay);
+  };
+
+  scheduleNext();
+}
+
+export function stopAutoParlayScheduler(){
+
+  if (timer){
+    clearTimeout(timer);
+  }
+
+  timer = null;
+}
