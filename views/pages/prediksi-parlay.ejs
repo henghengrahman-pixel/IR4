@@ -4,96 +4,59 @@
 <%- include('../partials/auth-buttons') %>
 
 <section class="parlay-page with-home-bg">
-  <main class="container parlay-layout parlay-single-layout">
-    <article class="parlay-single">
-      <div class="single-top">
-        <a class="badge" href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"><%= post.category || 'Prediksi Parlay' %></a>
-        <div class="single-live">🔥 UPDATE TERBARU</div>
-      </div>
-
-      <h1><%= post.title %></h1>
-
-      <div class="single-meta">
-        <span>👑 By <strong><%= post.author || 'Master Parlay' %></strong></span>
-        <span>🕒 <%= fmtDate(post.createdAt) %></span>
-        <span>⚽ Analisa Pertandingan</span>
-        <% (post.tags || []).forEach(function(tag){ %><span>#<%= tag %></span><% }) %>
-      </div>
-
-      <% if (post.thumbnail) { %>
-        <div class="single-image-wrap">
-          <img class="single-cover" src="<%= post.thumbnail %>" alt="<%= post.title %>">
-          <div class="single-image-overlay"><span>🔥 HOT PARLAY</span></div>
+  <section class="parlay-hero">
+    <div class="container">
+      <div class="hero-box">
+        <span class="hero-badge">🔥 PREDIKSI PARLAY TERUPDATE</span>
+        <h1>PREDIKSI PARLAY JITU</h1>
+        <p>Update prediksi parlay malam ini berdasarkan pertandingan aktif, liga besar, Liga Indonesia, dan analisa otomatis.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong><%= allPosts.length %>+</strong><span>Artikel Prediksi</span></div>
+          <div class="hero-stat"><strong>LIVE</strong><span>Update Otomatis</span></div>
+          <div class="hero-stat"><strong>AI</strong><span>Analisa Match</span></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container parlay-layout">
+    <section class="parlay-list">
+      <% if (!posts.length) { %>
+        <article class="parlay-empty"><div class="empty-icon">⚽</div><h3>Belum Ada Prediksi</h3><p>Prediksi parlay otomatis akan segera diperbarui.</p></article>
       <% } %>
 
-      <div class="article-content"><%- post.content %></div>
-
-      <% if ((post.predictions || []).length) { %>
-        <div class="prediction-header">
-          <span>⚽ ANALISA MATCH</span>
-          <h2>SARAN PREDIKSI PARLAY MALAM INI</h2>
-          <p>Prediksi berdasarkan jadwal pertandingan aktif, liga besar, Liga Indonesia, dan analisa otomatis.</p>
-        </div>
-
-        <% post.predictions.forEach(function(league){ %>
-          <div class="league-box">
-            <div class="league-head">
-              <div class="league-icon">⚽</div>
-              <h2 class="league-title"><%= league.league %></h2>
+      <% posts.forEach(function(post){
+        const hotCount = (post.predictions || []).reduce((sum, league) => sum + (league.matches || []).filter(m => m.hotMatch).length, 0);
+      %>
+        <article class="parlay-card">
+          <a class="parlay-thumb" href="<%= parlayUrl(post) %>">
+            <img src="<%= post.thumbnail %>" alt="<%= post.title %>" loading="lazy">
+            <div class="thumb-overlay"><span>🔥 HOT MATCH: <%= hotCount %></span></div>
+          </a>
+          <div class="parlay-body">
+            <div class="post-top">
+              <a class="badge" href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"><%= post.category || 'Prediksi Parlay' %></a>
+              <span class="date-mini">🕒 <%= fmtDate(post.createdAt) %></span>
             </div>
-            <div class="table-wrap">
-              <table class="prediksi-table">
-                <thead>
-                  <tr><th>MATCH</th><th>1X2</th><th>O/U</th><th>SKOR</th><th>DETAIL</th></tr>
-                </thead>
-                <tbody>
-                  <% league.matches.forEach(function(rawMatch){ const match = normalizeMatchItem(rawMatch, league.league, post); %>
-                    <tr class="<%= match.hotMatch ? 'hot-row' : '' %>">
-                      <td>
-                        <a class="match-link" href="<%= matchUrl(match) %>">
-                          <strong><%= match.match %></strong>
-                          <% if (match.hotMatch) { %><span class="hot-mini">🔥 HOT</span><% } %>
-                        </a>
-                      </td>
-                      <td><span class="pick-badge"><%= match.pick %></span></td>
-                      <td><span class="ou-badge"><%= match.ou %></span></td>
-                      <td><span class="score-badge"><%= match.score %></span></td>
-                      <td><a class="detail-btn" href="<%= matchUrl(match) %>">Lihat</a></td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
+            <h2><a href="<%= parlayUrl(post) %>"><%= post.title %></a></h2>
+            <div class="post-meta"><span>👑 <%= post.author || 'Master Parlay' %></span><span>⚽ Analisa Pertandingan</span><span>🔥 Auto Update</span></div>
+            <p><%= post.excerpt %></p>
+            <div class="post-actions"><a href="<%= parlayUrl(post) %>" class="read-btn">LIHAT PREDIKSI →</a></div>
           </div>
-        <% }) %>
-      <% } %>
+        </article>
+      <% }) %>
 
-      <div class="parlay-note">
-        <div class="note-box">
-          <div class="note-icon">⚠️</div>
-          <div class="note-content">
-            <h3>Rekomendasi Bermain Aman</h3>
-            <p>Gunakan prediksi ini sebagai referensi tambahan. Selalu bermain secara bijak dan kelola risiko dengan batas yang aman.</p>
-          </div>
-        </div>
+      <div class="pagination">
+        <% if (currentPage > 1) { %><a href="/prediksi-parlay?page=<%= currentPage - 1 %>">‹</a><% } %>
+        <% for(let i=1; i<=totalPages; i++){ %>
+          <% if (i === currentPage || i <= 2 || i === totalPages || Math.abs(i-currentPage)<=1) { %>
+            <a class="<%= i === currentPage ? 'on' : '' %>" href="/prediksi-parlay?page=<%= i %>"><%= i %></a>
+          <% } else if (i === 3 && currentPage > 4) { %><span>...</span><% } %>
+        <% } %>
+        <% if (currentPage < totalPages) { %><a href="/prediksi-parlay?page=<%= currentPage + 1 %>">›</a><% } %>
       </div>
-
-      <% if (related.length) { %>
-        <div class="related">
-          <div class="related-head">🔥 Related Prediction</div>
-          <div class="related-grid">
-            <% related.forEach(function(item){ %>
-              <a href="<%= parlayUrl(item) %>" class="related-card">
-                <div class="related-thumb"><img src="<%= item.thumbnail %>" alt="<%= item.title %>"></div>
-                <div class="related-body"><span class="badge">PARLAY</span><h4><%= item.title %></h4></div>
-              </a>
-            <% }) %>
-          </div>
-        </div>
-      <% } %>
-    </article>
-    <%- include('../partials/sidebar-blog', { latestPosts, ads }) %>
+    </section>
+    <%- include('../partials/sidebar-blog', { latestPosts: allPosts.slice(0, 8), ads }) %>
   </main>
 </section>
 
