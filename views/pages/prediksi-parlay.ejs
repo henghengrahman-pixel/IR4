@@ -1,0 +1,57 @@
+<%- include('../partials/topbar') %>
+<%- include('../partials/ticker') %>
+<%- include('../partials/slider') %>
+<%- include('../partials/auth-buttons') %>
+<section class="parlay-hero parlay-hero-pro">
+  <div class="container hero-pro-grid">
+    <div>
+      <span class="hero-kicker">Pusat Prediksi Bola Premium</span>
+      <h1>Prediksi Parlay Hari Ini</h1>
+      <p>Rangkuman pick pilihan, odds estimasi, confidence, win rate, dan analisa singkat untuk membantu membaca arah pertandingan dengan lebih rapi.</p>
+      <div class="hero-actions"><a href="#parlay-list" class="cta-main">Lihat Prediksi</a><a href="<%= settings.registerUrl || '#' %>" class="cta-second">Main Sekarang</a></div>
+    </div>
+    <div class="hero-score-card">
+      <strong>Parlay 3 Tim Hari Ini</strong>
+      <span>Safe Pick • Big Match • Odds Estimasi</span>
+      <div class="mini-stat-row"><b><%= allPosts[0]?.parlayStats?.avgConfidence || 88 %>%</b><small>Confidence</small></div>
+      <div class="mini-stat-row"><b><%= allPosts[0]?.parlayStats?.totalOdds || '5.32' %></b><small>Odds Estimasi</small></div>
+    </div>
+  </div>
+</section>
+<main class="container parlay-layout" id="parlay-list">
+  <section class="parlay-list">
+    <div class="section-head-pro"><h2>Update Prediksi Terbaru</h2><p>Semua data dibuat dalam format card profesional agar member cepat membaca pick, risiko, dan peluang.</p></div>
+    <% if (!posts.length) { %>
+      <article class="parlay-empty">Belum ada prediksi parlay yang publish.</article>
+    <% } %>
+    <% posts.forEach(function(post){ const st = post.parlayStats || {}; %>
+      <article class="parlay-card parlay-card-pro">
+        <a class="parlay-thumb" href="<%= parlayUrl(post) %>"><img src="<%= post.thumbnail %>" alt="<%= post.title %>" loading="lazy"><span class="thumb-live">HOT</span></a>
+        <div class="parlay-body">
+          <div class="card-topline"><a class="badge" href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"><%= post.category || 'Prediksi Parlay' %></a><span class="status-pill">PREVIEW</span></div>
+          <h2><a href="<%= parlayUrl(post) %>"><%= post.title %></a></h2>
+          <div class="post-meta">▣ <%= fmtDate(post.createdAt) %> &nbsp; ▣ <%= post.author || 'Master Parlay' %></div>
+          <p><%= post.excerpt %></p>
+          <div class="pro-stats-grid">
+            <div><b><%= st.winRate || 90 %>%</b><span>Win Rate</span></div>
+            <div><b><%= st.avgConfidence || 88 %>%</b><span>Confidence</span></div>
+            <div><b><%= st.totalOdds || '5.32' %></b><span>Odds</span></div>
+            <div><b><%= st.totalMatches || 3 %></b><span>Match</span></div>
+          </div>
+          <% if (st.bestPick) { %><div class="best-pick-line">💎 Best Pick: <strong><%= st.bestPick.match %></strong> — <%= st.bestPick.market %></div><% } %>
+          <a class="read-more-pro" href="<%= parlayUrl(post) %>">Buka Analisa Lengkap</a>
+        </div>
+      </article>
+    <% }) %>
+    <div class="pagination">
+      <% if (currentPage > 1) { %><a href="/prediksi-parlay?page=<%= currentPage - 1 %>">‹</a><% } %>
+      <% for(let i=1; i<=totalPages; i++){ %>
+        <% if (i === currentPage || i <= 2 || i === totalPages || Math.abs(i-currentPage)<=1) { %><a class="<%= i === currentPage ? 'on' : '' %>" href="/prediksi-parlay?page=<%= i %>"><%= i %></a><% } else if (i === 3 && currentPage > 4) { %><span>...</span><% } %>
+      <% } %>
+      <% if (currentPage < totalPages) { %><a href="/prediksi-parlay?page=<%= currentPage + 1 %>">›</a><% } %>
+    </div>
+  </section>
+  <%- include('../partials/sidebar-blog', { latestPosts: allPosts.slice(0, 8), ads }) %>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/quick-menu') %>
