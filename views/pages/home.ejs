@@ -1,9 +1,173 @@
-<div id="loader" class="loader"><div class="loader-card"><img src="<%= settings.logoUrl %>" alt="<%= settings.siteName %>" style="height:56px;border-radius:10px"/><div class="spin"></div><p>Memuat prediksi…</p></div></div>
+<div id="loader" class="loader">
+  <div class="loader-card">
+
+    <% if (settings.logoUrl) { %>
+      <img
+        src="<%= settings.logoUrl %>"
+        alt="<%= settings.siteName %>"
+        style="height:56px;border-radius:10px"
+        onerror="this.style.display='none'"
+      />
+    <% } %>
+
+    <div class="spin"></div>
+
+    <p>
+      Memuat prediksi pertandingan...
+    </p>
+
+  </div>
+</div>
+
 <%- include('../partials/topbar') %>
 <%- include('../partials/ticker') %>
 <%- include('../partials/slider') %>
 <%- include('../partials/auth-buttons') %>
-<section class="hero"><div class="container"><h1>Analisa Pertandingan Hari Ini</h1><p id="dateLine" class="date"></p></div></section>
-<main class="container" id="content"></main>
+
+<section class="hero">
+
+  <div class="container">
+
+    <div class="hero-wrap">
+
+      <div class="hero-content">
+
+        <span class="hero-badge">
+          PREDIKSI BOLA HARI INI
+        </span>
+
+        <h1>
+          Analisa Pertandingan Hari Ini
+        </h1>
+
+        <p class="hero-desc">
+          Prediksi pertandingan pilihan dari liga besar dunia dan Liga Indonesia lengkap dengan prediksi skor, 1X2, over under, dan statistik pertandingan.
+        </p>
+
+        <div class="hero-meta">
+
+          <span id="dateLine" class="date"></span>
+
+          <span class="dot"></span>
+
+          <span>
+            Update Harian
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<main
+  class="container"
+  id="content"
+>
+
+  <% if (
+    Array.isArray(homePredictions) &&
+    homePredictions.length
+  ) { %>
+
+    <section class="home-parlay-preview">
+
+      <div class="section-head">
+
+        <div>
+
+          <span class="section-badge">
+            BIG MATCH
+          </span>
+
+          <h2>
+            Prediksi Pilihan Hari Ini
+          </h2>
+
+        </div>
+
+        <a
+          href="/prediksi-parlay"
+          class="view-all"
+        >
+          Lihat Semua
+        </a>
+
+      </div>
+
+      <div class="preview-grid">
+
+        <% homePredictions.slice(0,6).forEach(post => { %>
+
+          <article class="preview-card">
+
+            <a
+              href="/prediksi-parlay/<%= post.slug %>"
+              class="preview-link"
+            >
+
+              <div class="preview-thumb">
+
+                <img
+                  src="<%= post.thumbnail || '/assets/img/default.jpg' %>"
+                  alt="<%= post.title %>"
+                  loading="lazy"
+                  onerror="this.src='/assets/img/default.jpg'"
+                />
+
+              </div>
+
+              <div class="preview-body">
+
+                <span class="preview-category">
+                  <%= post.category || 'Prediksi Parlay' %>
+                </span>
+
+                <h3>
+                  <%= post.title %>
+                </h3>
+
+                <p>
+                  <%= post.excerpt || 'Prediksi pertandingan pilihan lengkap dengan analisa dan prediksi skor.' %>
+                </p>
+
+                <div class="preview-meta">
+
+                  <span>
+                    <%= fmtDate(post.createdAt) %>
+                  </span>
+
+                  <% if (
+                    Array.isArray(post.predictions)
+                  ) { %>
+
+                    <span>
+                      <%= post.predictions.reduce((a,b)=>a+(b.matches?.length||0),0) %> Match
+                    </span>
+
+                  <% } %>
+
+                </div>
+
+              </div>
+
+            </a>
+
+          </article>
+
+        <% }) %>
+
+      </div>
+
+    </section>
+
+  <% } %>
+
+</main>
+
 <%- include('../partials/footer') %>
 <%- include('../partials/quick-menu') %>
