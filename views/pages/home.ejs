@@ -65,109 +65,111 @@
 </section>
 
 <main
-  class="container"
+  class="container home-container"
   id="content"
->
+></main>
 
-  <% if (
-    Array.isArray(homePredictions) &&
-    homePredictions.length
-  ) { %>
+<% if (
+  Array.isArray(homePredictions) &&
+  homePredictions.length
+) { %>
 
-    <section class="home-parlay-preview">
+<section class="home-parlay-preview">
 
-      <div class="section-head">
+  <div class="container">
 
-        <div>
+    <div class="section-head">
 
-          <span class="section-badge">
-            BIG MATCH
-          </span>
+      <div>
 
-          <h2>
-            Prediksi Pilihan Hari Ini
-          </h2>
+        <span class="section-badge">
+          BIG MATCH
+        </span>
 
-        </div>
-
-        <a
-          href="/prediksi-parlay"
-          class="view-all"
-        >
-          Lihat Semua
-        </a>
+        <h2>
+          Prediksi Pilihan Hari Ini
+        </h2>
 
       </div>
 
-      <div class="preview-grid">
+      <a
+        href="/prediksi-parlay"
+        class="view-all"
+      >
+        Lihat Semua
+      </a>
 
-        <% homePredictions.slice(0,6).forEach(post => { %>
+    </div>
 
-          <article class="preview-card">
+    <div class="preview-grid">
 
-            <a
-              href="/prediksi-parlay/<%= post.slug %>"
-              class="preview-link"
-            >
+      <% homePredictions.slice(0,6).forEach(post => { %>
 
-              <div class="preview-thumb">
+        <article class="preview-card">
 
-                <img
-                  src="<%= post.thumbnail || '/assets/img/default.jpg' %>"
-                  alt="<%= post.title %>"
-                  loading="lazy"
-                  onerror="this.src='/assets/img/default.jpg'"
-                />
+          <a
+            href="/prediksi-parlay/<%= post.slug %>"
+            class="preview-link"
+          >
 
-              </div>
+            <div class="preview-thumb">
 
-              <div class="preview-body">
+              <img
+                src="<%= post.thumbnail || '/assets/img/default.jpg' %>"
+                alt="<%= post.title %>"
+                loading="lazy"
+                onerror="this.src='/assets/img/default.jpg'"
+              />
 
-                <span class="preview-category">
-                  <%= post.category || 'Prediksi Parlay' %>
+            </div>
+
+            <div class="preview-body">
+
+              <span class="preview-category">
+                <%= post.category || 'Prediksi Parlay' %>
+              </span>
+
+              <h3>
+                <%= post.title %>
+              </h3>
+
+              <p>
+                <%= post.excerpt || 'Prediksi pertandingan pilihan lengkap dengan analisa dan prediksi skor.' %>
+              </p>
+
+              <div class="preview-meta">
+
+                <span>
+                  <%= fmtDate(post.createdAt) %>
                 </span>
 
-                <h3>
-                  <%= post.title %>
-                </h3>
-
-                <p>
-                  <%= post.excerpt || 'Prediksi pertandingan pilihan lengkap dengan analisa dan prediksi skor.' %>
-                </p>
-
-                <div class="preview-meta">
+                <% if (
+                  Array.isArray(post.predictions)
+                ) { %>
 
                   <span>
-                    <%= fmtDate(post.createdAt) %>
+                    <%= post.predictions.reduce((a,b)=>a+(b.matches?.length||0),0) %> Match
                   </span>
 
-                  <% if (
-                    Array.isArray(post.predictions)
-                  ) { %>
-
-                    <span>
-                      <%= post.predictions.reduce((a,b)=>a+(b.matches?.length||0),0) %> Match
-                    </span>
-
-                  <% } %>
-
-                </div>
+                <% } %>
 
               </div>
 
-            </a>
+            </div>
 
-          </article>
+          </a>
 
-        <% }) %>
+        </article>
 
-      </div>
+      <% }) %>
 
-    </section>
+    </div>
 
-  <% } %>
+  </div>
 
-</main>
+</section>
+
+<% } %>
 
 <%- include('../partials/footer') %>
 <%- include('../partials/quick-menu') %>
