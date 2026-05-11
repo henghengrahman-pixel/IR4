@@ -183,20 +183,26 @@ if (logoBtn) {
   };
 
   if (nextBtn) {
+
     nextBtn.onclick =
       () => go(idx + 1, true);
+
   }
 
   if (prevBtn) {
+
     prevBtn.onclick =
       () => go(idx - 1, true);
+
   }
 
   slider.addEventListener(
     "mouseenter",
     () => {
+
       if (timer)
         clearInterval(timer);
+
     }
   );
 
@@ -373,7 +379,7 @@ function estimateScore(r) {
 }
 
 /* =========================
-   PANEL
+   HOME CARD FINAL
 ========================= */
 
 function panelSkor(
@@ -398,10 +404,10 @@ function panelSkor(
         loading="lazy"
         onerror="this.style.display='none'"
         style="
-          height:14px;
-          vertical-align:-2px;
-          margin-right:8px;
-          border-radius:2px
+          width:18px;
+          height:18px;
+          border-radius:50%;
+          object-fit:cover
         "
       />
       `
@@ -412,51 +418,29 @@ function panelSkor(
 
   </div>
 
-  <div class="twrap">
+  <div class="home-match-grid">
 
-    <table class="t">
+    ${rows.map(r => `
 
-      <thead>
-
-        <tr>
-
-          <th style="width:170px">
-            Tanggal & Waktu
-          </th>
-
-          <th>
-            PERTANDINGAN
-          </th>
-
-          <th style="width:110px">
-            PREDIKSI
-          </th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        ${rows.map((r, i) => `
-
-<tr
-  class="${i % 2 ? "alt" : ""}"
+<article
+  class="home-match-card"
   data-row="${(r.match || "").toLowerCase()}"
 >
 
-  <td class="time">
-    ${r.kickoffWib || "-"}
-  </td>
+  <div class="home-left">
 
-  <td>
+    <span class="match-time">
+      ${r.kickoffWib || "-"}
+    </span>
 
-    <div class="match-row">
+  </div>
 
-      <div class="team">
+  <div class="home-center">
 
-        ${r.homeLogo
-          ? `
+    <div class="home-team">
+
+      ${r.homeLogo
+        ? `
 <img
   src="${r.homeLogo}"
   alt="${r.homeName}"
@@ -464,23 +448,27 @@ function panelSkor(
   onerror="this.style.display='none'"
 />
 `
-          : ""
-        }
+        : ""
+      }
 
-        <span>
-          ${r.homeName || ""}
-        </span>
+      <strong>
+        ${r.homeName || ""}
+      </strong>
 
-      </div>
+    </div>
 
-      <div class="vs">
+    <div class="home-vs">
+
+      <span>
         VS
-      </div>
+      </span>
 
-      <div class="team">
+    </div>
 
-        ${r.awayLogo
-          ? `
+    <div class="home-team">
+
+      ${r.awayLogo
+        ? `
 <img
   src="${r.awayLogo}"
   alt="${r.awayName}"
@@ -488,22 +476,20 @@ function panelSkor(
   onerror="this.style.display='none'"
 />
 `
-          : ""
-        }
+        : ""
+      }
 
-        <span>
-          ${r.awayName || ""}
-        </span>
-
-      </div>
+      <strong>
+        ${r.awayName || ""}
+      </strong>
 
     </div>
 
-  </td>
+  </div>
 
-  <td class="score">
+  <div class="home-right">
 
-    <div class="pick">
+    <div class="predict-score">
       ${estimateScore(r)}
     </div>
 
@@ -511,15 +497,11 @@ function panelSkor(
       ${r.prediction || r.tip || ""}
     </small>
 
-  </td>
+  </div>
 
-</tr>
+</article>
 
 `).join("")}
-
-      </tbody>
-
-    </table>
 
   </div>
 
@@ -605,9 +587,11 @@ async function fetchData(
     );
 
   if (!r.ok) {
+
     throw new Error(
       `HTTP ${r.status}`
     );
+
   }
 
   return r.json();
@@ -644,15 +628,21 @@ async function load(d) {
     safe("dateLine");
 
   if (line) {
+
     line.textContent =
       fmtID(d);
+
   }
 
   const loader =
     $("#loader");
 
   if (loader) {
-    loader.classList.add("show");
+
+    loader.classList.add(
+      "show"
+    );
+
   }
 
   try {
@@ -664,6 +654,8 @@ async function load(d) {
 
   } catch (err) {
 
+    console.error(err);
+
     render(
       demo(ds)
     );
@@ -671,7 +663,11 @@ async function load(d) {
   } finally {
 
     if (loader) {
-      loader.classList.remove("show");
+
+      loader.classList.remove(
+        "show"
+      );
+
     }
 
   }
@@ -701,11 +697,11 @@ function applyFilter(q) {
       false;
 
     p.querySelectorAll(
-      "tbody tr"
-    ).forEach(tr => {
+      ".home-match-card"
+    ).forEach(card => {
 
       const row =
-        tr.getAttribute(
+        card.getAttribute(
           "data-row"
         ) || "";
 
@@ -716,7 +712,7 @@ function applyFilter(q) {
 
         ttl.includes(q);
 
-      tr.style.display =
+      card.style.display =
         show
           ? ""
           : "none";
@@ -857,7 +853,9 @@ load(new Date());
       if (
         e.key === "Escape"
       ) {
+
         close();
+
       }
 
     }
@@ -885,7 +883,9 @@ load(new Date());
         );
 
       if (!within) {
+
         close();
+
       }
 
     }
