@@ -28,14 +28,6 @@ const API =
 const API_HEADERS =
   footballHeaders();
 
-const KEY =
-  process.env.API_FOOTBALL_KEY ||
-  process.env.FOOTBALL_API_KEY;
-
-const SEASON =
-  process.env.SEASON ||
-  "2025";
-
 const CACHE_TTL =
   Number(
     process.env.CACHE_TTL ||
@@ -49,18 +41,19 @@ const CACHE_TTL =
 const cache =
   new Map();
 
-function getCache(key) {
+function getCache(key){
 
   const row =
     cache.get(key);
 
-  if (!row)
+  if(!row){
     return null;
+  }
 
-  if (
+  if(
     Date.now() >
     row.exp
-  ) {
+  ){
 
     cache.delete(key);
 
@@ -75,8 +68,8 @@ function getCache(key) {
 function setCache(
   key,
   val,
-  ttl = CACHE_TTL
-) {
+  ttl=CACHE_TTL
+){
 
   cache.set(
     key,
@@ -94,20 +87,18 @@ function setCache(
    AUTH
 ========================= */
 
-function canRunAutoParlay(req) {
+function canRunAutoParlay(req){
 
-  if (
+  if(
     req.session?.isAdmin
-  ) {
+  ){
     return true;
   }
 
   const secret =
-    process.env
-      .AUTO_PARLAY_SECRET ||
+    process.env.AUTO_PARLAY_SECRET ||
 
-    process.env
-      .ADMIN_PASSWORD ||
+    process.env.ADMIN_PASSWORD ||
 
     "";
 
@@ -135,8 +126,8 @@ function canRunAutoParlay(req) {
 
 async function apiGet(
   path,
-  params = {}
-) {
+  params={}
+){
 
   const cacheKey =
     `${path}:${JSON.stringify(params)}`;
@@ -144,8 +135,9 @@ async function apiGet(
   const cached =
     getCache(cacheKey);
 
-  if (cached)
+  if(cached){
     return cached;
+  }
 
   const { data } =
     await axios.get(
@@ -154,7 +146,7 @@ async function apiGet(
         headers:
           API_HEADERS,
         params,
-        timeout: 15000
+        timeout:15000
       }
     );
 
@@ -180,7 +172,7 @@ async function apiGet(
 
 router.get(
   "/api/auto-parlay/status",
-  async (_req, res) => {
+  async (_req,res)=>{
 
     const status =
       await getAutoParlayStatus();
@@ -192,17 +184,17 @@ router.get(
 
 router.post(
   "/api/auto-parlay/run",
-  async (req, res) => {
+  async (req,res)=>{
 
-    if (
+    if(
       !canRunAutoParlay(req)
-    ) {
+    ){
 
       return res
         .status(403)
         .json({
-          ok: false,
-          error: "Forbidden"
+          ok:false,
+          error:"Forbidden"
         });
 
     }
@@ -234,17 +226,17 @@ router.post(
 
 router.get(
   "/api/auto-parlay/run",
-  async (req, res) => {
+  async (req,res)=>{
 
-    if (
+    if(
       !canRunAutoParlay(req)
-    ) {
+    ){
 
       return res
         .status(403)
         .json({
-          ok: false,
-          error: "Forbidden"
+          ok:false,
+          error:"Forbidden"
         });
 
     }
@@ -273,25 +265,24 @@ router.get(
 );
 
 /* =========================
-   FIXTURES API
+   FIXTURES
 ========================= */
 
 router.get(
   "/api/fixtures",
-  async (req, res) => {
+  async (req,res)=>{
 
-    try {
+    try{
 
-      if (
+      if(
         !hasFootballApiKey()
-      ) {
+      ){
 
         return res
           .status(500)
           .json({
-            ok: false,
-            error:
-              "FOOTBALL_API_KEY belum diisi"
+            ok:false,
+            error:"FOOTBALL_API_KEY belum diisi"
           });
 
       }
@@ -301,7 +292,7 @@ router.get(
 
         new Date()
           .toISOString()
-          .slice(0, 10);
+          .slice(0,10);
 
       const fixtures =
         await apiGet(
@@ -312,7 +303,7 @@ router.get(
       const normalized =
         fixtures
 
-          .filter(row => {
+          .filter(row=>{
 
             return isAllowedPredictionLeague({
 
@@ -330,17 +321,15 @@ router.get(
 
           })
 
-          .map(row => {
+          .map(row=>{
 
             const p =
-              normalizePrediction(
-                row
-              );
+              normalizePrediction(row);
 
             return {
 
               priority:
-                p.priority,
+                p.priority || 999,
 
               fixtureId:
                 p.fixtureId,
@@ -444,14 +433,14 @@ router.get(
       const grouped =
         new Map();
 
-      for (const item of sorted) {
+      for(const item of sorted){
 
         const key =
           item.leagueName;
 
-        if (
+        if(
           !grouped.has(key)
-        ) {
+        ){
 
           grouped.set(
             key,
@@ -471,14 +460,16 @@ router.get(
 
               priority:
                 leaguePriority({
+
                   leagueName:
                     item.leagueName,
 
                   country:
                     item.country
+
                 }),
 
-              rows: []
+              rows:[]
 
             }
           );
@@ -495,12 +486,12 @@ router.get(
       const groups =
         [...grouped.values()]
 
-          .sort((a, b) => {
+          .sort((a,b)=>{
 
-            if (
+            if(
               a.priority !==
               b.priority
-            ) {
+            ){
 
               return (
                 a.priority -
@@ -519,13 +510,16 @@ router.get(
 
           })
 
-          .map(row => ({
+          .map(row=>({
 
             title:
               `${(
                 row.country ||
                 ""
-              ).toUpperCase()} - ${row.league}`,
+              ).toUpperCase()} - ${(
+                row.league ||
+                ""
+              ).toUpperCase()}`,
 
             league:
               row.league,
@@ -551,7 +545,7 @@ router.get(
 
       res.json({
 
-        ok: true,
+        ok:true,
 
         date,
 
@@ -562,7 +556,7 @@ router.get(
 
       });
 
-    } catch (err) {
+    }catch(err){
 
       res
         .status(
@@ -571,7 +565,7 @@ router.get(
         )
         .json({
 
-          ok: false,
+          ok:false,
 
           error:
             err?.response?.data ||
@@ -585,25 +579,25 @@ router.get(
 );
 
 /* =========================
-   LIVE API
+   LIVE
 ========================= */
 
 router.get(
   "/api/live",
-  async (_req, res) => {
+  async (_req,res)=>{
 
-    try {
+    try{
 
       const fixtures =
         await apiGet(
           "/fixtures",
-          { live: "all" }
+          { live:"all" }
         );
 
       const rows =
         fixtures
 
-          .filter(row =>
+          .filter(row=>
 
             isAllowedPredictionLeague({
 
@@ -621,12 +615,10 @@ router.get(
 
           )
 
-          .map(row => {
+          .map(row=>{
 
             const p =
-              normalizePrediction(
-                row
-              );
+              normalizePrediction(row);
 
             return {
 
@@ -637,7 +629,10 @@ router.get(
                 `${(
                   p.country ||
                   ""
-                ).toUpperCase()} - ${p.leagueName}`,
+                ).toUpperCase()} - ${(
+                  p.leagueName ||
+                  ""
+                ).toUpperCase()}`,
 
               home:
                 p.homeName,
@@ -654,8 +649,17 @@ router.get(
               score:
                 p.currentScore,
 
-              kickoff:
+              kickoffWib:
                 p.kickoffWib,
+
+              predictedScore:
+                p.predictedScore,
+
+              prediction:
+                p.prediction,
+
+              confidence:
+                p.confidence,
 
               status:
                 p.status
@@ -664,9 +668,10 @@ router.get(
 
           })
 
-          .sort((a, b) => {
+          .sort((a,b)=>{
 
             return (
+
               leaguePriority({
                 leagueName:
                   a.league
@@ -685,13 +690,13 @@ router.get(
 
       res.json({
 
-        ok: true,
+        ok:true,
 
         rows
 
       });
 
-    } catch (err) {
+    }catch(err){
 
       res
         .status(
@@ -700,7 +705,7 @@ router.get(
         )
         .json({
 
-          ok: false,
+          ok:false,
 
           error:
             err?.response?.data ||
@@ -714,21 +719,21 @@ router.get(
 );
 
 /* =========================
-   FINISHED API
+   FINISHED
 ========================= */
 
 router.get(
   "/api/finished",
-  async (req, res) => {
+  async (req,res)=>{
 
-    try {
+    try{
 
       const date =
         req.query.date ||
 
         new Date()
           .toISOString()
-          .slice(0, 10);
+          .slice(0,10);
 
       const fixtures =
         await apiGet(
@@ -739,7 +744,7 @@ router.get(
       const rows =
         fixtures
 
-          .filter(row => {
+          .filter(row=>{
 
             const st =
               String(
@@ -756,12 +761,10 @@ router.get(
 
           })
 
-          .map(row => {
+          .map(row=>{
 
             const p =
-              normalizePrediction(
-                row
-              );
+              normalizePrediction(row);
 
             return {
 
@@ -772,7 +775,10 @@ router.get(
                 `${(
                   p.country ||
                   ""
-                ).toUpperCase()} - ${p.leagueName}`,
+                ).toUpperCase()} - ${(
+                  p.leagueName ||
+                  ""
+                ).toUpperCase()}`,
 
               home:
                 p.homeName,
@@ -789,6 +795,18 @@ router.get(
               score:
                 p.currentScore,
 
+              kickoffWib:
+                p.kickoffWib,
+
+              predictedScore:
+                p.predictedScore,
+
+              prediction:
+                p.prediction,
+
+              confidence:
+                p.confidence,
+
               status:
                 p.status
 
@@ -798,7 +816,7 @@ router.get(
 
       res.json({
 
-        ok: true,
+        ok:true,
 
         date,
 
@@ -806,7 +824,7 @@ router.get(
 
       });
 
-    } catch (err) {
+    }catch(err){
 
       res
         .status(
@@ -815,7 +833,7 @@ router.get(
         )
         .json({
 
-          ok: false,
+          ok:false,
 
           error:
             err?.response?.data ||
@@ -829,14 +847,14 @@ router.get(
 );
 
 /* =========================
-   UPCOMING API
+   UPCOMING
 ========================= */
 
 router.get(
   "/api/upcoming",
-  async (req, res) => {
+  async (req,res)=>{
 
-    try {
+    try{
 
       const hours =
         Math.max(
@@ -865,7 +883,7 @@ router.get(
       const rows =
         fixtures
 
-          .filter(row =>
+          .filter(row=>
 
             isAllowedPredictionLeague({
 
@@ -883,12 +901,10 @@ router.get(
 
           )
 
-          .map(row => {
+          .map(row=>{
 
             const p =
-              normalizePrediction(
-                row
-              );
+              normalizePrediction(row);
 
             return {
 
@@ -899,7 +915,10 @@ router.get(
                 `${(
                   p.country ||
                   ""
-                ).toUpperCase()} - ${p.leagueName}`,
+                ).toUpperCase()} - ${(
+                  p.leagueName ||
+                  ""
+                ).toUpperCase()}`,
 
               home:
                 p.homeName,
@@ -913,7 +932,7 @@ router.get(
               awayLogo:
                 p.awayLogo,
 
-              kickoff:
+              kickoffWib:
                 p.kickoffWib,
 
               prediction:
@@ -923,7 +942,10 @@ router.get(
                 p.confidence,
 
               predictedScore:
-                p.predictedScore
+                p.predictedScore,
+
+              status:
+                p.status
 
             };
 
@@ -931,18 +953,16 @@ router.get(
 
       res.json({
 
-        ok: true,
+        ok:true,
 
         hours,
 
         rows:
-          sortPredictionMatches(
-            rows
-          )
+          sortPredictionMatches(rows)
 
       });
 
-    } catch (err) {
+    }catch(err){
 
       res
         .status(
@@ -951,7 +971,7 @@ router.get(
         )
         .json({
 
-          ok: false,
+          ok:false,
 
           error:
             err?.response?.data ||
@@ -965,14 +985,14 @@ router.get(
 );
 
 /* =========================
-   H2H API
+   H2H
 ========================= */
 
 router.get(
   "/api/h2h",
-  async (req, res) => {
+  async (req,res)=>{
 
-    try {
+    try{
 
       const home =
         Number(
@@ -996,18 +1016,17 @@ router.get(
           )
         );
 
-      if (
+      if(
         !home ||
         !away
-      ) {
+      ){
 
         return res
           .status(400)
           .json({
 
-            ok: false,
-            error:
-              "missing home/away"
+            ok:false,
+            error:"missing home/away"
 
           });
 
@@ -1024,7 +1043,7 @@ router.get(
         );
 
       const result =
-        rows.map(row => {
+        rows.map(row=>{
 
           const homeName =
             row?.teams?.home?.name ||
@@ -1043,7 +1062,10 @@ router.get(
               `${(
                 row?.league?.country ||
                 ""
-              ).toUpperCase()} - ${row?.league?.name || ""}`,
+              ).toUpperCase()} - ${(
+                row?.league?.name ||
+                ""
+              ).toUpperCase()}`,
 
             home:
               homeName,
@@ -1067,7 +1089,7 @@ router.get(
 
       res.json({
 
-        ok: true,
+        ok:true,
 
         home,
         away,
@@ -1078,7 +1100,7 @@ router.get(
 
       });
 
-    } catch (err) {
+    }catch(err){
 
       res
         .status(
@@ -1087,7 +1109,7 @@ router.get(
         )
         .json({
 
-          ok: false,
+          ok:false,
 
           error:
             err?.response?.data ||
