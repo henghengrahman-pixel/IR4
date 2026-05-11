@@ -690,3 +690,121 @@ button{
   }
 
 }
+/* =========================
+   HOME CARD FINAL
+========================= */
+
+.home-match-grid{
+  display:grid;
+  gap:16px;
+  padding:18px;
+}
+
+.home-match-card{
+  display:grid;
+  grid-template-columns:160px 1fr 160px;
+  align-items:center;
+  gap:20px;
+  background:#111522;
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:22px;
+  padding:18px;
+}
+
+.home-left{
+  display:flex;
+  align-items:center;
+}
+
+.match-time{
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+}
+
+.home-center{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+}
+
+.home-team{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  width:160px;
+  text-align:center;
+}
+
+.home-team img{
+  width:72px;
+  height:72px;
+  object-fit:contain;
+}
+
+.home-team strong{
+  color:#fff;
+  font-size:16px;
+  line-height:1.5;
+}
+
+.home-vs{
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+}
+
+.home-right{
+  text-align:center;
+}
+
+.predict-score{
+  color:#ffd86b;
+  font-size:30px;
+  font-weight:900;
+  line-height:1;
+  margin-bottom:8px;
+}
+
+.home-right small{
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+}
+
+@media(max-width:768px){
+
+  .home-match-card{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+
+  .home-left{
+    justify-content:center;
+  }
+
+  .home-center{
+    gap:14px;
+  }
+
+  .home-team{
+    width:110px;
+  }
+
+  .home-team img{
+    width:54px;
+    height:54px;
+  }
+
+  .home-team strong{
+    font-size:13px;
+  }
+
+  .predict-score{
+    font-size:24px;
+  }
+
+}
