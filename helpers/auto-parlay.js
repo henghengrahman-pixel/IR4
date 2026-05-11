@@ -2,12 +2,14 @@ import crypto from "crypto";
 import { readJson, writeJson } from "./json-db.js";
 import { getPosts, savePosts } from "./store.js";
 import { slugify, makeExcerpt } from "./slug.js";
+
 import {
   getFixturesByDate,
   normalizeFixture,
   normalizePrediction,
   isAllowedPredictionLeague,
-  leaguePriority
+  leaguePriority,
+  sortPredictionMatches
 } from "./football-api.js";
 
 /* =========================
@@ -25,109 +27,6 @@ const DEFAULT_THUMBNAIL =
   process.env.AUTO_PARLAY_THUMBNAIL_URL ||
   "https://i.ibb.co/RTFBCzGc/image.png";
 
-/* =========================
-   PRIORITAS LIGA
-========================= */
-
-const PRIORITY_LEAGUES = [
-
-  // ======================
-  // INDONESIA
-  // ======================
-
-  "Liga 1",
-  "BRI Liga 1",
-  "Indonesia",
-
-  // ======================
-  // INGGRIS
-  // ======================
-
-  "Premier League",
-  "England Premier League",
-
-  // ======================
-  // SPANYOL
-  // ======================
-
-  "La Liga",
-  "Spain La Liga",
-
-  // ======================
-  // ITALIA
-  // ======================
-
-  "Serie A",
-  "Italy Serie A",
-
-  // ======================
-  // JERMAN
-  // ======================
-
-  "Bundesliga",
-  "Germany Bundesliga",
-
-  // ======================
-  // PRANCIS
-  // ======================
-
-  "Ligue 1",
-  "France Ligue 1",
-
-  // ======================
-  // EROPA
-  // ======================
-
-  "Champions League",
-  "Europa League",
-  "Conference League",
-
-  // ======================
-  // ASIA
-  // ======================
-
-  "Saudi Pro League",
-  "AFC Champions League",
-
-  // ======================
-  // AMERIKA
-  // ======================
-
-  "MLS",
-  "Copa Libertadores"
-
-];
-
-/* =========================
-   BLOCKED
-========================= */
-
-const BLOCKED_KEYWORDS = [
-
-  "Women",
-  "Female",
-  "Feminine",
-
-  "U17",
-  "U18",
-  "U19",
-  "U20",
-  "U21",
-  "U22",
-  "U23",
-
-  "Youth",
-
-  "Reserve",
-  "Reserves",
-
-  "Friendly",
-  "Friendlies",
-
-  "Amateur"
-
-];
-
 let timer = null;
 let running = false;
 
@@ -135,32 +34,32 @@ let running = false;
    DATE
 ========================= */
 
-function nowParts(date = new Date()){
+function nowParts(date = new Date()) {
 
   const parts =
     new Intl.DateTimeFormat(
       "en-CA",
       {
         timeZone: TZ,
-        year:"numeric",
-        month:"2-digit",
-        day:"2-digit",
-        hour:"2-digit",
-        minute:"2-digit",
-        second:"2-digit",
-        hour12:false
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
       }
     )
 
-    .formatToParts(date)
+      .formatToParts(date)
 
-    .reduce((acc, p) => {
+      .reduce((acc, p) => {
 
-      acc[p.type] = p.value;
+        acc[p.type] = p.value;
 
-      return acc;
+        return acc;
 
-    }, {});
+      }, {});
 
   return {
 
@@ -189,7 +88,7 @@ function nowParts(date = new Date()){
 
 }
 
-function addDays(dateString, amount){
+function addDays(dateString, amount) {
 
   const d =
     new Date(
@@ -202,11 +101,11 @@ function addDays(dateString, amount){
 
   return d
     .toISOString()
-    .slice(0,10);
+    .slice(0, 10);
 
 }
 
-function nextMidnightDelay(){
+function nextMidnightDelay() {
 
   const p = nowParts();
 
@@ -233,7 +132,7 @@ function nextMidnightDelay(){
    TITLE DATE
 ========================= */
 
-function prettyDateRange(dateString){
+function prettyDateRange(dateString) {
 
   const monthNames = [
 
@@ -252,7 +151,7 @@ function prettyDateRange(dateString){
 
   ];
 
-  const [y,m,d] =
+  const [y, m, d] =
     dateString
       .split("-")
       .map(Number);
@@ -260,308 +159,322 @@ function prettyDateRange(dateString){
   const next =
     addDays(dateString, 1);
 
-  const [ny,nm,nd] =
+  const [ny, nm, nd] =
     next
       .split("-")
       .map(Number);
 
-  if (m === nm && y === ny){
+  if (m === nm && y === ny) {
 
     return `
-${String(d).padStart(2,"0")}
+${String(d).padStart(2, "0")}
 –
-${String(nd).padStart(2,"0")}
-${monthNames[m-1]}
+${String(nd).padStart(2, "0")}
+${monthNames[m - 1]}
 ${y}
-`.replace(/\s+/g,' ').trim();
+`.replace(/\s+/g, ' ').trim();
 
   }
 
   return `
-${String(d).padStart(2,"0")}
-${monthNames[m-1]}
+${String(d).padStart(2, "0")}
+${monthNames[m - 1]}
 ${y}
 –
-${String(nd).padStart(2,"0")}
-${monthNames[nm-1]}
+${String(nd).padStart(2, "0")}
+${monthNames[nm - 1]}
 ${ny}
-`.replace(/\s+/g,' ').trim();
+`.replace(/\s+/g, ' ').trim();
 
 }
 
 /* =========================
-   HASH
+   FILTER MATCH
 ========================= */
 
-function hashNum(text){
+function isFinished(status = "") {
 
-  const hex =
-    crypto
-      .createHash("sha256")
-      .update(String(text))
-      .digest("hex")
-      .slice(0,8);
-
-  return parseInt(hex, 16);
-
-}
-
-/* =========================
-   AI PREDICT
-========================= */
-
-function predictMatch(fixture){
-
-  const seed =
-    hashNum(`
-${fixture.id}
-${fixture.home}
-${fixture.away}
-${fixture.date}
-`);
-
-  const homePower =
-    45 +
-    (
-      hashNum(
-        `${fixture.home}-home`
-      ) % 55
-    );
-
-  const awayPower =
-    45 +
-    (
-      hashNum(
-        `${fixture.away}-away`
-      ) % 55
-    );
-
-  const homeBoost =
-    8 + (seed % 7);
-
-  const diff =
-    (
-      homePower +
-      homeBoost
-    ) - awayPower;
-
-  let pick = "X";
-
-  if (diff > 9) pick = "1";
-
-  if (diff < -6) pick = "2";
-
-  let homeGoals =
-    1 + (seed % 3);
-
-  let awayGoals =
-    1 + (
-      (seed >> 3) % 3
-    );
-
-  if (
-    pick === "1" &&
-    homeGoals <= awayGoals
-  ){
-
-    homeGoals =
-      awayGoals + 1;
-
-  }
-
-  if (
-    pick === "2" &&
-    awayGoals <= homeGoals
-  ){
-
-    awayGoals =
-      homeGoals + 1;
-
-  }
-
-  if (pick === "X"){
-
-    const g =
-      (seed % 2) + 1;
-
-    homeGoals = g;
-    awayGoals = g;
-
-  }
-
-  homeGoals =
-    Math.min(homeGoals, 4);
-
-  awayGoals =
-    Math.min(awayGoals, 4);
-
-  const ou =
-    (
-      homeGoals +
-      awayGoals
-    ) >= 3
-      ? "OVER"
-      : "UNDER";
-
-  return {
-
-    match:
-      `${fixture.home} vs ${fixture.away}`,
-
-    pick,
-
-    ou,
-
-    score:
-      `${homeGoals} – ${awayGoals}`,
-
-    time:
-      fixture.date,
-
-    fixtureId:
-      fixture.id
-
-  };
-
-}
-
-/* =========================
-   FILTER LIGA
-========================= */
-
-function allowedLeague(name = ""){
-
-  if (!name) return false;
-
-  const leagueName =
-    String(name).toLowerCase();
-
-  // ======================
-  // BLOCK LIGA TIDAK PENTING
-  // ======================
-
-  if (
-
-    BLOCKED_KEYWORDS.some(
-
-      word =>
-
-        leagueName.includes(
-          word.toLowerCase()
-        )
-
-    )
-
-  ){
-
-    return false;
-
-  }
-
-  // ======================
-  // PRIORITAS LIGA BESAR
-  // ======================
-
-  return PRIORITY_LEAGUES.some(
-
-    league =>
-
-      leagueName.includes(
-        league.toLowerCase()
-      )
-
+  return [
+    "FT",
+    "AET",
+    "PEN",
+    "PST",
+    "CANC",
+    "ABD",
+    "AWD",
+    "WO"
+  ].includes(
+    String(status || "")
+      .toUpperCase()
   );
 
 }
 
 /* =========================
-   GROUP
+   SORT MATCHES
 ========================= */
 
-function groupPredictions(fixtures){
+function sortLeagueMatches(matches = []) {
+
+  return [...matches].sort((a, b) => {
+
+    const ca =
+      Number(a.confidence || 0);
+
+    const cb =
+      Number(b.confidence || 0);
+
+    if (ca !== cb) {
+      return cb - ca;
+    }
+
+    return (
+      (a.timestamp || 0) -
+      (b.timestamp || 0)
+    );
+
+  });
+
+}
+
+/* =========================
+   GROUP PREDICTIONS
+========================= */
+
+function groupPredictions(fixtures = []) {
 
   const grouped = new Map();
 
-  for (const raw of fixtures){
+  for (const raw of fixtures) {
 
-    const f = normalizeFixture(raw);
+    const fixture =
+      normalizeFixture(raw);
 
-    if (["FT", "AET", "PEN", "PST", "CANC", "ABD", "AWD", "WO"].includes(String(f.status || "").toUpperCase())) {
+    if (
+      isFinished(fixture.status)
+    ) {
       continue;
     }
 
-    if (!isAllowedPredictionLeague({ leagueName: f.league, country: f.country })) {
+    if (
+      !isAllowedPredictionLeague({
+        leagueName: fixture.league,
+        country: fixture.country
+      })
+    ) {
       continue;
     }
 
-    const p = normalizePrediction(raw);
+    const prediction =
+      normalizePrediction(raw);
+
     const item = {
-      fixtureId: p.fixtureId,
-      homeId: p.homeId,
-      awayId: p.awayId,
-      homeName: p.homeName,
-      awayName: p.awayName,
-      homeLogo: p.homeLogo,
-      awayLogo: p.awayLogo,
-      leagueName: p.leagueName,
-      leagueLogo: p.leagueLogo,
-      country: p.country,
-      kickoffWib: p.kickoffWib,
-      status: p.status,
-      match: p.match,
-      pick: p.pick,
-      tip: p.tip,
-      prediction: p.prediction,
-      ou: p.ou,
-      overUnder: p.overUnder,
-      score: p.score,
-      predictedScore: p.predictedScore,
-      confidence: p.confidence,
-      odds: p.odds,
-      form: p.form,
-      stats: p.stats,
-      h2h: p.h2h
+
+      priority:
+        prediction.priority,
+
+      fixtureId:
+        prediction.fixtureId,
+
+      leagueId:
+        prediction.leagueId,
+
+      season:
+        prediction.season,
+
+      homeId:
+        prediction.homeId,
+
+      awayId:
+        prediction.awayId,
+
+      homeName:
+        prediction.homeName,
+
+      awayName:
+        prediction.awayName,
+
+      homeLogo:
+        prediction.homeLogo,
+
+      awayLogo:
+        prediction.awayLogo,
+
+      leagueName:
+        prediction.leagueName,
+
+      leagueLogo:
+        prediction.leagueLogo,
+
+      leagueFlag:
+        prediction.leagueFlag,
+
+      country:
+        prediction.country,
+
+      kickoffIso:
+        prediction.kickoffIso,
+
+      kickoffWib:
+        prediction.kickoffWib,
+
+      status:
+        prediction.status,
+
+      match:
+        prediction.match,
+
+      prediction:
+        prediction.prediction,
+
+      tip:
+        prediction.tip,
+
+      pick:
+        prediction.pick,
+
+      confidence:
+        prediction.confidence,
+
+      predictedScore:
+        prediction.predictedScore,
+
+      score:
+        prediction.score,
+
+      currentScore:
+        prediction.currentScore,
+
+      overUnder:
+        prediction.overUnder,
+
+      ou:
+        prediction.ou,
+
+      odds:
+        prediction.odds,
+
+      form:
+        prediction.form,
+
+      stats:
+        prediction.stats,
+
+      h2h:
+        prediction.h2h,
+
+      timestamp:
+        fixture.timestamp || 0
+
     };
 
-    const key = p.leagueName || f.league;
-    if (!grouped.has(key)) {
-      grouped.set(key, {
-        league: key,
-        country: p.country || f.country || "",
-        priority: leaguePriority({ leagueName: key, country: p.country || f.country || "" }),
-        matches: []
-      });
+    const leagueKey =
+      prediction.leagueName ||
+      fixture.league;
+
+    if (!grouped.has(leagueKey)) {
+
+      grouped.set(
+        leagueKey,
+        {
+          league:
+            leagueKey,
+
+          country:
+            prediction.country ||
+            fixture.country ||
+            "",
+
+          priority:
+            leaguePriority({
+              leagueName: leagueKey,
+              country:
+                prediction.country ||
+                fixture.country ||
+                ""
+            }),
+
+          matches: []
+        }
+      );
+
     }
 
-    grouped.get(key).matches.push(item);
+    grouped
+      .get(leagueKey)
+      .matches
+      .push(item);
+
   }
 
   return [...grouped.values()]
-    .sort((a, b) => a.priority - b.priority || a.league.localeCompare(b.league))
+
+    .sort((a, b) => {
+
+      if (
+        a.priority !==
+        b.priority
+      ) {
+        return (
+          a.priority -
+          b.priority
+        );
+      }
+
+      return a.league.localeCompare(
+        b.league
+      );
+
+    })
+
     .map(row => ({
-      league: row.league,
-      matches: row.matches.slice(0, Number(process.env.AUTO_PARLAY_MAX_MATCHES_PER_LEAGUE || 12))
+
+      league:
+        row.league,
+
+      priority:
+        row.priority,
+
+      matches:
+        sortLeagueMatches(
+          sortPredictionMatches(
+            row.matches
+          )
+        ).slice(
+          0,
+          Number(
+            process.env
+              .AUTO_PARLAY_MAX_MATCHES_PER_LEAGUE ||
+            12
+          )
+        )
+
     }))
-    .filter(row => row.matches.length);
+
+    .filter(
+      row =>
+        row.matches.length
+    );
 
 }
+
 /* =========================
    LIMIT
 ========================= */
 
-function limitLeagues(predictions){
+function limitLeagues(predictions = []) {
 
   const maxLeagues =
     Number(
       process.env
-      .AUTO_PARLAY_MAX_LEAGUES ||
+        .AUTO_PARLAY_MAX_LEAGUES ||
       10
     );
 
   const maxMatches =
     Number(
       process.env
-      .AUTO_PARLAY_MAX_MATCHES ||
+        .AUTO_PARLAY_MAX_MATCHES ||
       40
     );
 
@@ -569,12 +482,12 @@ function limitLeagues(predictions){
 
   let count = 0;
 
-  for (const league of predictions){
+  for (const league of predictions) {
 
     if (
       result.length >= maxLeagues ||
       count >= maxMatches
-    ){
+    ) {
       break;
     }
 
@@ -582,14 +495,20 @@ function limitLeagues(predictions){
       maxMatches - count;
 
     const matches =
-      league.matches.slice(0, left);
+      league.matches.slice(
+        0,
+        left
+      );
 
-    if (matches.length){
+    if (matches.length) {
 
       result.push({
 
         league:
           league.league,
+
+        priority:
+          league.priority,
 
         matches
 
@@ -604,6 +523,7 @@ function limitLeagues(predictions){
   return result;
 
 }
+
 /* =========================
    CONTENT
 ========================= */
@@ -611,7 +531,7 @@ function limitLeagues(predictions){
 function contentFromPredictions(
   title,
   predictions
-){
+) {
 
   const leagueNames =
     predictions
@@ -630,7 +550,8 @@ function contentFromPredictions(
 <p>
 Prediksi Parlay malam ini
 menyajikan rangkuman pertandingan
-pilihan yang akan bermain hari ini.
+pilihan dari liga besar dunia
+dan Liga Indonesia.
 </p>
 
 <p>
@@ -638,14 +559,14 @@ Artikel
 <strong>${title}</strong>
 memuat
 ${total}
-pertandingan dari beberapa kompetisi,
-termasuk
+pertandingan pilihan dari
 ${leagueNames}.
 </p>
 
 <p>
-Gunakan prediksi ini sebagai
-referensi tambahan sebelum bermain.
+Semua prediksi disusun berdasarkan
+data pertandingan, performa tim,
+dan prioritas kompetisi utama.
 </p>
 `;
 
@@ -655,19 +576,19 @@ referensi tambahan sebelum bermain.
    STATUS
 ========================= */
 
-async function writeStatus(update){
+async function writeStatus(update) {
 
   const current =
     await readJson(
       STATUS_FILE,
       {
-        enabled:true,
-        running:false,
-        lastRunAt:null,
-        lastSuccessAt:null,
-        lastError:null,
-        lastCreatedSlug:null,
-        nextRunAt:null
+        enabled: true,
+        running: false,
+        lastRunAt: null,
+        lastSuccessAt: null,
+        lastError: null,
+        lastCreatedSlug: null,
+        nextRunAt: null
       }
     );
 
@@ -690,7 +611,7 @@ async function writeStatus(update){
 async function uniqueSlugForDate(
   title,
   posts
-){
+) {
 
   const base =
     slugify(title);
@@ -703,7 +624,7 @@ async function uniqueSlugForDate(
     posts.some(
       p => p.slug === slug
     )
-  ){
+  ) {
 
     slug =
       `${base}-${i++}`;
@@ -715,30 +636,30 @@ async function uniqueSlugForDate(
 }
 
 /* =========================
-   GET STATUS
+   STATUS
 ========================= */
 
 export async function
-getAutoParlayStatus(){
+getAutoParlayStatus() {
 
   return readJson(
     STATUS_FILE,
     {
       enabled:
         process.env
-        .AUTO_PARLAY_ENABLED !== "false",
+          .AUTO_PARLAY_ENABLED !== "false",
 
-      running:false,
+      running: false,
 
-      lastRunAt:null,
+      lastRunAt: null,
 
-      lastSuccessAt:null,
+      lastSuccessAt: null,
 
-      lastError:null,
+      lastError: null,
 
-      lastCreatedSlug:null,
+      lastCreatedSlug: null,
 
-      nextRunAt:null
+      nextRunAt: null
     }
   );
 
@@ -754,15 +675,15 @@ generateDailyParlay({
   force = false,
   date = null
 
-} = {}){
+} = {}) {
 
-  if (running){
+  if (running) {
 
     return {
 
-      ok:false,
+      ok: false,
 
-      skipped:true,
+      skipped: true,
 
       message:
         "Auto parlay sedang berjalan."
@@ -778,11 +699,11 @@ generateDailyParlay({
 
   await writeStatus({
 
-    running:true,
+    running: true,
 
-    lastRunAt:runAt,
+    lastRunAt: runAt,
 
-    lastError:null
+    lastError: null
 
   });
 
@@ -793,7 +714,7 @@ generateDailyParlay({
 
     const posts =
       await getPosts({
-        includeDrafts:true
+        includeDrafts: true
       });
 
     const existing =
@@ -806,28 +727,28 @@ generateDailyParlay({
     if (
       existing &&
       !force
-    ){
+    ) {
 
       await writeStatus({
 
-        running:false,
+        running: false,
 
-        lastSuccessAt:runAt,
+        lastSuccessAt: runAt,
 
         lastCreatedSlug:
           existing.slug,
 
-        lastError:null
+        lastError: null
 
       });
 
       return {
 
-        ok:true,
+        ok: true,
 
-        skipped:true,
+        skipped: true,
 
-        post:existing
+        post: existing
 
       };
 
@@ -838,11 +759,11 @@ generateDailyParlay({
         targetDate
       );
 
-    if (!apiResult.ok){
+    if (!apiResult.ok) {
 
       await writeStatus({
 
-        running:false,
+        running: false,
 
         lastError:
           apiResult.error
@@ -851,7 +772,7 @@ generateDailyParlay({
 
       return {
 
-        ok:false,
+        ok: false,
 
         error:
           apiResult.error
@@ -867,24 +788,24 @@ generateDailyParlay({
         )
       );
 
-    if (!predictions.length){
+    if (!predictions.length) {
 
       const msg =
         `Tidak ada pertandingan untuk ${targetDate}`;
 
       await writeStatus({
 
-        running:false,
+        running: false,
 
-        lastError:msg
+        lastError: msg
 
       });
 
       return {
 
-        ok:false,
+        ok: false,
 
-        error:msg
+        error: msg
 
       };
 
@@ -896,12 +817,12 @@ generateDailyParlay({
     let rows =
       force
         ? posts.filter(
-            p =>
-              !(
-                p.autoGenerated &&
-                p.autoDate === targetDate
-              )
-          )
+          p =>
+            !(
+              p.autoGenerated &&
+              p.autoDate === targetDate
+            )
+        )
         : posts;
 
     const slug =
@@ -921,7 +842,7 @@ generateDailyParlay({
 
     const totalMatches =
       predictions.reduce(
-        (sum,row)=>
+        (sum, row) =>
           sum + row.matches.length,
         0
       );
@@ -929,7 +850,7 @@ generateDailyParlay({
     const post = {
 
       id:
-        `auto-${crypto.randomUUID().slice(0,8)}`,
+        `auto-${crypto.randomUUID().slice(0, 8)}`,
 
       title,
 
@@ -938,7 +859,7 @@ generateDailyParlay({
       category:
         "Prediksi Parlay",
 
-      tags:[
+      tags: [
         "Prediksi Bola",
         "Parlay Hari Ini",
         "Tips Bola"
@@ -946,7 +867,7 @@ generateDailyParlay({
 
       author:
         process.env
-        .AUTO_PARLAY_AUTHOR ||
+          .AUTO_PARLAY_AUTHOR ||
         "Master Parlay",
 
       thumbnail:
@@ -954,23 +875,23 @@ generateDailyParlay({
 
       excerpt:
         makeExcerpt(
-          `Prediksi parlay hari ini berisi ${totalMatches} pertandingan pilihan dari liga besar dan Indonesia, lengkap dengan 1X2, over/under, dan perkiraan skor.`
+          `Prediksi parlay hari ini berisi ${totalMatches} pertandingan pilihan dari liga besar dan Indonesia, lengkap dengan 1X2, over/under, dan prediksi skor pertandingan.`
         ),
 
       content,
 
-      published:true,
+      published: true,
 
-      autoGenerated:true,
+      autoGenerated: true,
 
-      autoDate:targetDate,
+      autoDate: targetDate,
 
       fixtureSource:
         "api-football",
 
-      createdAt:now,
+      createdAt: now,
 
-      updatedAt:now,
+      updatedAt: now,
 
       predictions
 
@@ -982,21 +903,21 @@ generateDailyParlay({
 
     await writeStatus({
 
-      running:false,
+      running: false,
 
-      lastSuccessAt:now,
+      lastSuccessAt: now,
 
-      lastCreatedSlug:slug,
+      lastCreatedSlug: slug,
 
-      lastError:null
+      lastError: null
 
     });
 
     return {
 
-      ok:true,
+      ok: true,
 
-      skipped:false,
+      skipped: false,
 
       post,
 
@@ -1004,7 +925,7 @@ generateDailyParlay({
 
     };
 
-  } catch (err){
+  } catch (err) {
 
     const error =
       err?.message ||
@@ -1012,15 +933,15 @@ generateDailyParlay({
 
     await writeStatus({
 
-      running:false,
+      running: false,
 
-      lastError:error
+      lastError: error
 
     });
 
     return {
 
-      ok:false,
+      ok: false,
 
       error
 
@@ -1039,12 +960,12 @@ generateDailyParlay({
 ========================= */
 
 export function
-startAutoParlayScheduler(){
+startAutoParlayScheduler() {
 
   if (
     process.env
-    .AUTO_PARLAY_ENABLED === "false"
-  ){
+      .AUTO_PARLAY_ENABLED === "false"
+  ) {
 
     console.log(
       "[AUTO PARLAY] disabled"
@@ -1067,14 +988,14 @@ startAutoParlayScheduler(){
 
       await writeStatus({
 
-        enabled:true,
+        enabled: true,
         nextRunAt
 
-      }).catch(()=>{});
+      }).catch(() => { });
 
       timer =
         setTimeout(
-          async()=>{
+          async () => {
 
             console.log(
               `[AUTO PARLAY] run 00:00 ${TZ}`
@@ -1094,14 +1015,14 @@ startAutoParlayScheduler(){
 
   if (
     process.env
-    .AUTO_PARLAY_RUN_ON_START === "true"
-  ){
+      .AUTO_PARLAY_RUN_ON_START === "true"
+  ) {
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
       generateDailyParlay();
 
-    },5000);
+    }, 5000);
 
   }
 
@@ -1112,7 +1033,7 @@ startAutoParlayScheduler(){
 ========================= */
 
 export function
-stopAutoParlayScheduler(){
+stopAutoParlayScheduler() {
 
   if (timer)
     clearTimeout(timer);
