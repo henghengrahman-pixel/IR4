@@ -50,7 +50,7 @@ button{
 
 .container{
   width:94%;
-  max-width:1100px;
+  max-width:1200px;
   margin:0 auto;
 }
 
@@ -284,9 +284,9 @@ button{
 .slide img{
   width:100%;
   height:100%;
-  object-fit:contain;
+  object-fit:cover;
   object-position:center;
-  background:transparent;
+  display:block;
 }
 
 .ctrl{
@@ -370,37 +370,10 @@ button{
   transform:translateY(1px);
 }
 
-.btn-cta::before{
-  content:"";
-  position:absolute;
-  top:-120%;
-  left:-30%;
-  width:45%;
-  height:300%;
-  background:linear-gradient(
-    115deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.18) 45%,
-    rgba(255,255,255,.45) 50%,
-    rgba(255,255,255,.18) 55%,
-    rgba(255,255,255,0) 100%
-  );
-  transform:translateX(-140%);
-  animation:btnSweep 2.8s linear infinite;
-  pointer-events:none;
-}
-
-@keyframes btnSweep{
-  to{
-    transform:translateX(260%);
-  }
-}
-
 .btn-gold{
   color:#141418;
   background:linear-gradient(180deg,#ffe08e,#ffd86b 55%,#e1b64c);
   border:1px solid #f1c85e;
-  text-shadow:0 1px 0 rgba(255,255,255,.4);
 }
 
 .btn-rgb{
@@ -410,7 +383,7 @@ button{
 }
 
 /* =========================
-   HOME MATCH FIX FINAL
+   PANEL
 ========================= */
 
 .panel{
@@ -437,10 +410,117 @@ button{
   letter-spacing:.6px;
 }
 
-.twrap{
-  overflow-x:auto;
+/* =========================
+   HOME MATCH FINAL
+========================= */
+
+.home-match-grid{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:16px;
 }
 
+.home-match-card{
+  display:grid;
+  grid-template-columns:180px 1fr 180px;
+  align-items:center;
+  background:#111522;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;
+  overflow:hidden;
+  min-height:160px;
+}
+
+.home-left{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+
+.match-time{
+  color:#fff;
+  font-size:15px;
+  font-weight:800;
+  text-align:center;
+  line-height:1.5;
+}
+
+.home-center{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:50px;
+  padding:20px;
+}
+
+.home-team{
+  width:180px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.home-team img{
+  width:90px;
+  height:90px;
+  object-fit:contain;
+  display:block;
+  margin-bottom:14px;
+}
+
+.home-team strong{
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.5;
+  word-break:break-word;
+}
+
+.home-vs{
+  min-width:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.home-vs span{
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+  opacity:.9;
+}
+
+.home-right{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  border-left:1px solid rgba(255,255,255,.06);
+}
+
+.predict-score{
+  color:#ffd86b;
+  font-size:36px;
+  font-weight:900;
+  line-height:1;
+  margin-bottom:10px;
+}
+
+.home-right small{
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+  text-align:center;
+  line-height:1.5;
+}
 
 /* =========================
    LOADER
@@ -540,189 +620,27 @@ button{
 @media(max-width:768px){
 
   .hero h1{
-    font-size:36px;
+    font-size:34px;
   }
 
   .hero-desc{
     font-size:14px;
+    line-height:1.7;
   }
-
-  .t{
-    min-width:720px;
-  }
-
-  .match-row{
-    gap:14px;
-    min-height:110px;
-  }
-
-  .team{
-    width:110px;
-  }
-
-  .team img{
-    width:54px !important;
-    height:54px !important;
-  }
-
-  .team span{
-    font-size:13px;
-  }
-
-  .score .pick{
-    font-size:22px;
-  }
-
-}
-
-@media(max-width:680px){
-
-  .slide{
-    aspect-ratio:16/9;
-  }
-
-  .authbar{
-    gap:10px;
-  }
-
-  .btn-cta{
-    width:calc(50% - 5px);
-    padding:14px 0;
-    min-width:0;
-  }
-
-}
-/* =========================
-   HOME CARD FIX FINAL
-========================= */
-
-.home-match-grid{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  padding:16px;
-}
-
-.home-match-card{
-  display:grid;
-  grid-template-columns:180px 1fr 180px;
-  align-items:center;
-  gap:10px;
-  background:#111522;
-  border:1px solid rgba(255,255,255,.05);
-  border-radius:18px;
-  overflow:hidden;
-  min-height:150px;
-}
-
-.home-left{
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  border-right:1px solid rgba(255,255,255,.05);
-}
-
-.match-time{
-  color:#fff;
-  font-size:15px;
-  font-weight:800;
-  text-align:center;
-  line-height:1.5;
-}
-
-.home-center{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:34px;
-  padding:20px;
-}
-
-.home-team{
-  width:180px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-}
-
-.home-team img{
-  width:82px;
-  height:82px;
-  object-fit:contain;
-  display:block;
-  margin-bottom:12px;
-}
-
-.home-team strong{
-  color:#fff;
-  font-size:17px;
-  font-weight:800;
-  line-height:1.4;
-  word-break:break-word;
-}
-
-.home-vs{
-  min-width:50px;
-  text-align:center;
-}
-
-.home-vs span{
-  color:#fff;
-  font-size:22px;
-  font-weight:900;
-  opacity:.9;
-}
-
-.home-right{
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  border-left:1px solid rgba(255,255,255,.05);
-}
-
-.predict-score{
-  color:#ffd86b;
-  font-size:34px;
-  font-weight:900;
-  line-height:1;
-  margin-bottom:10px;
-}
-
-.home-right small{
-  color:#fff;
-  font-size:15px;
-  font-weight:700;
-  text-align:center;
-  line-height:1.5;
-}
-
-/* =========================
-   MOBILE FIX
-========================= */
-
-@media(max-width:768px){
 
   .home-match-card{
     grid-template-columns:1fr;
-    min-height:auto;
   }
 
   .home-left{
     border-right:none;
-    border-bottom:1px solid rgba(255,255,255,.05);
+    border-bottom:1px solid rgba(255,255,255,.06);
     padding:14px;
   }
 
   .home-center{
     gap:14px;
-    padding:22px 10px;
+    padding:20px 10px;
   }
 
   .home-team{
@@ -744,12 +662,30 @@ button{
 
   .home-right{
     border-left:none;
-    border-top:1px solid rgba(255,255,255,.05);
+    border-top:1px solid rgba(255,255,255,.06);
     padding:16px;
   }
 
   .predict-score{
     font-size:28px;
+  }
+
+}
+
+@media(max-width:680px){
+
+  .slide{
+    aspect-ratio:16/9;
+  }
+
+  .authbar{
+    gap:10px;
+  }
+
+  .btn-cta{
+    width:calc(50% - 5px);
+    padding:14px 0;
+    min-width:0;
   }
 
 }
