@@ -9,10 +9,6 @@
   --gold2:#e1b64c;
 }
 
-/* =========================
-   RESET
-========================= */
-
 *{
   box-sizing:border-box;
 }
@@ -50,7 +46,7 @@ button{
 
 .container{
   width:94%;
-  max-width:1100px;
+  max-width:1180px;
   margin:0 auto;
 }
 
@@ -120,71 +116,6 @@ button{
   height:18px;
   fill:#b5b8c6;
   opacity:.9;
-}
-
-/* =========================
-   TICKER
-========================= */
-
-.ticker{
-  position:relative;
-  margin:10px auto 14px;
-  padding:8px 14px;
-  border-radius:14px;
-  background:linear-gradient(180deg,#1a1b20,#0f1014);
-  box-shadow:
-    0 6px 20px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.04);
-  overflow:hidden;
-  border:1px solid #2a2c34;
-}
-
-.ticker::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:14px;
-  padding:1px;
-  background:linear-gradient(90deg,#ddc168,#ffd86b,#e1b64c,#ddc168);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  animation:goldShift 6s linear infinite;
-}
-
-@keyframes goldShift{
-  to{
-    background-position:200% 0;
-  }
-}
-
-.ticker__track{
-  display:flex;
-  gap:60px;
-  white-space:nowrap;
-  animation:scrollX 28s linear infinite;
-}
-
-.ticker:hover .ticker__track{
-  animation-play-state:paused;
-}
-
-.ticker span{
-  color:#f6f7fb;
-  letter-spacing:.2px;
-  font-weight:600;
-  opacity:.92;
-}
-
-@keyframes scrollX{
-  from{
-    transform:translateX(0);
-  }
-  to{
-    transform:translateX(-50%);
-  }
 }
 
 /* =========================
@@ -289,52 +220,6 @@ button{
   background:transparent;
 }
 
-.ctrl{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(0,0,0,.45);
-  border:1px solid #3b3b45;
-  color:#fff;
-  padding:6px 10px;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-.ctrl:hover{
-  background:rgba(0,0,0,.7);
-}
-
-.prev{
-  left:10px;
-}
-
-.next{
-  right:10px;
-}
-
-.dots{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:8px;
-  display:flex;
-  gap:6px;
-  justify-content:center;
-}
-
-.dot{
-  width:8px;
-  height:8px;
-  border-radius:999px;
-  background:rgba(255,255,255,.35);
-  border:1px solid rgba(0,0,0,.4);
-}
-
-.dot.active{
-  background:linear-gradient(180deg,var(--gold),var(--gold2));
-}
-
 /* =========================
    AUTH BUTTON
 ========================= */
@@ -366,41 +251,10 @@ button{
   overflow:hidden;
 }
 
-.btn-cta:active{
-  transform:translateY(1px);
-}
-
-.btn-cta::before{
-  content:"";
-  position:absolute;
-  top:-120%;
-  left:-30%;
-  width:45%;
-  height:300%;
-  background:linear-gradient(
-    115deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.18) 45%,
-    rgba(255,255,255,.45) 50%,
-    rgba(255,255,255,.18) 55%,
-    rgba(255,255,255,0) 100%
-  );
-  transform:translateX(-140%);
-  animation:btnSweep 2.8s linear infinite;
-  pointer-events:none;
-}
-
-@keyframes btnSweep{
-  to{
-    transform:translateX(260%);
-  }
-}
-
 .btn-gold{
   color:#141418;
   background:linear-gradient(180deg,#ffe08e,#ffd86b 55%,#e1b64c);
   border:1px solid #f1c85e;
-  text-shadow:0 1px 0 rgba(255,255,255,.4);
 }
 
 .btn-rgb{
@@ -410,12 +264,34 @@ button{
 }
 
 /* =========================================================
-   HOME MATCH FINAL FIX 100%
+   REMOVE OLD TABLE STYLE TOTAL
+========================================================= */
+
+.twrap,
+.t,
+.t thead,
+.t th,
+.t td,
+.t tbody,
+.time,
+.match-row,
+.team,
+.team img,
+.team span,
+.vs,
+.score,
+.score .pick,
+.score small{
+  all:unset;
+}
+
+/* =========================================================
+   FINAL HOME MATCH UI
 ========================================================= */
 
 .panel{
   margin-bottom:28px;
-  border-radius:26px;
+  border-radius:24px;
   overflow:hidden;
   background:#10131c;
   border:1px solid rgba(255,255,255,.06);
@@ -442,6 +318,13 @@ button{
   letter-spacing:.6px;
 }
 
+.panel .head img{
+  width:18px !important;
+  height:18px !important;
+  border-radius:50%;
+  object-fit:cover;
+}
+
 .home-list{
   display:flex;
   flex-direction:column;
@@ -461,7 +344,7 @@ button{
   color:#fff;
   font-size:14px;
   font-weight:700;
-  line-height:1.6;
+  line-height:1.7;
 }
 
 .home-match{
@@ -509,6 +392,7 @@ button{
 
 .home-predict{
   text-align:center;
+  min-width:160px;
 }
 
 .home-predict strong{
@@ -528,11 +412,61 @@ button{
   line-height:1.5;
 }
 
-/* =========================================================
+/* =========================
+   LOADER
+========================= */
+
+.loader{
+  position:fixed;
+  inset:0;
+  display:none;
+  place-items:center;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(2px);
+  z-index:30;
+}
+
+.loader.show{
+  display:grid;
+}
+
+.loader-card{
+  background:#0f0f14;
+  border:1px solid #222230;
+  border-radius:16px;
+  padding:18px 22px;
+  text-align:center;
+}
+
+.spin{
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  border:3px solid rgba(255,255,255,.25);
+  border-top-color:#ffd36b;
+  margin:8px auto 0;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* =========================
    MOBILE
-========================================================= */
+========================= */
 
 @media(max-width:900px){
+
+  .hero h1{
+    font-size:36px;
+  }
+
+  .hero-desc{
+    font-size:14px;
+  }
 
   .home-card{
     grid-template-columns:1fr;
