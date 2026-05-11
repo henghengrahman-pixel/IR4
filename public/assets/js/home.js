@@ -379,7 +379,7 @@ function estimateScore(r) {
 }
 
 /* =========================
-   HOME CARD FINAL
+   FINAL HOME CARD
 ========================= */
 
 function panelSkor(
@@ -389,6 +389,7 @@ function panelSkor(
 ) {
 
   return `
+
 <section
   class="panel"
   data-title="${title}"
@@ -396,8 +397,7 @@ function panelSkor(
 
   <div class="head">
 
-    ${flag
-      ? `
+    ${flag ? `
       <img
         src="${flag}"
         alt=""
@@ -410,9 +410,7 @@ function panelSkor(
           object-fit:cover
         "
       />
-      `
-      : ""
-    }
+    ` : ""}
 
     ${title.toUpperCase()}
 
@@ -422,90 +420,79 @@ function panelSkor(
 
     ${rows.map(r => `
 
-<article
-  class="home-match-card"
-  data-row="${(r.match || "").toLowerCase()}"
->
+      <article
+        class="home-match-card"
+        data-row="${(r.match || "").toLowerCase()}"
+      >
 
-  <div class="home-left">
+        <div class="home-left">
 
-    <span class="match-time">
-      ${r.kickoffWib || "-"}
-    </span>
+          <div class="match-time">
+            ${r.kickoffWib || "-"}
+          </div>
 
-  </div>
+        </div>
 
-  <div class="home-center">
+        <div class="home-center">
 
-    <div class="home-team">
+          <div class="home-team">
 
-      ${r.homeLogo
-        ? `
-<img
-  src="${r.homeLogo}"
-  alt="${r.homeName}"
-  loading="lazy"
-  onerror="this.style.display='none'"
-/>
-`
-        : ""
-      }
+            <img
+              src="${r.homeLogo || '/assets/img/default-team.png'}"
+              alt="${r.homeName || ''}"
+              loading="lazy"
+              onerror="this.src='/assets/img/default-team.png'"
+            />
 
-      <strong>
-        ${r.homeName || ""}
-      </strong>
+            <strong>
+              ${r.homeName || "-"}
+            </strong>
 
-    </div>
+          </div>
 
-    <div class="home-vs">
+          <div class="home-vs">
 
-      <span>
-        VS
-      </span>
+            <span>VS</span>
 
-    </div>
+          </div>
 
-    <div class="home-team">
+          <div class="home-team">
 
-      ${r.awayLogo
-        ? `
-<img
-  src="${r.awayLogo}"
-  alt="${r.awayName}"
-  loading="lazy"
-  onerror="this.style.display='none'"
-/>
-`
-        : ""
-      }
+            <img
+              src="${r.awayLogo || '/assets/img/default-team.png'}"
+              alt="${r.awayName || ''}"
+              loading="lazy"
+              onerror="this.src='/assets/img/default-team.png'"
+            />
 
-      <strong>
-        ${r.awayName || ""}
-      </strong>
+            <strong>
+              ${r.awayName || "-"}
+            </strong>
 
-    </div>
+          </div>
 
-  </div>
+        </div>
 
-  <div class="home-right">
+        <div class="home-right">
 
-    <div class="predict-score">
-      ${estimateScore(r)}
-    </div>
+          <div class="predict-score">
+            ${estimateScore(r)}
+          </div>
 
-    <small>
-      ${r.prediction || r.tip || ""}
-    </small>
+          <small>
+            ${r.prediction || r.tip || "-"}
+          </small>
 
-  </div>
+        </div>
 
-</article>
+      </article>
 
-`).join("")}
+    `).join("")}
 
   </div>
 
 </section>
+
 `;
 
 }
