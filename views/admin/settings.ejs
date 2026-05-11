@@ -1,0 +1,18 @@
+<div class="admin-shell"><%- include('partials/sidebar') %><main class="admin-main"><h1>Site Settings</h1><div class="admin-card"><form class="admin-form-grid" method="post" action="/admin/settings" enctype="multipart/form-data">
+<label>Nama Website<input name="siteName" value="<%= settings.siteName || '' %>" /></label>
+<label>Subjudul Website<input name="siteSubtitle" value="<%= settings.siteSubtitle || '' %>" /></label>
+<label>Logo Header URL<input name="logoUrl" value="<%= settings.logoUrl || '' %>" /></label><label>Upload Logo Header<input type="file" name="logoFile" accept="image/*" /></label>
+<label>Logo Footer URL<input name="footerLogoUrl" value="<%= settings.footerLogoUrl || '' %>" /></label><label>Upload Logo Footer<input type="file" name="footerLogoFile" accept="image/*" /></label>
+<label>Favicon URL<input name="faviconUrl" value="<%= settings.faviconUrl || '' %>" /></label><label>Upload Favicon<input type="file" name="faviconFile" accept="image/*" /></label>
+<label>Background Desktop URL<input name="backgroundDesktopUrl" value="<%= settings.backgroundDesktop || '' %>" /></label><label>Upload Background Desktop<input type="file" name="backgroundDesktopFile" accept="image/*" /></label>
+<label>Background Mobile URL<input name="backgroundMobileUrl" value="<%= settings.backgroundMobile || '' %>" /></label><label>Upload Background Mobile<input type="file" name="backgroundMobileFile" accept="image/*" /></label>
+<label>Hero Image URL<input name="heroBannerUrl" value="<%= settings.heroBanner || '' %>" /></label><label>Upload Hero Image<input type="file" name="heroBannerFile" accept="image/*" /></label>
+<label>Telegram<input name="telegram" value="<%= settings.telegram || '' %>" /></label><label>WhatsApp<input name="whatsapp" value="<%= settings.whatsapp || '' %>" /></label>
+<label>Livechat<input name="livechat" value="<%= settings.livechat || '' %>" /></label><label>Login URL<input name="loginUrl" value="<%= settings.loginUrl || '' %>" /></label>
+<label>Register URL<input name="registerUrl" value="<%= settings.registerUrl || '' %>" /></label><label>Footer Text<input name="footerText" value="<%= settings.footerText || '' %>" /></label>
+<label>Facebook<input name="facebook" value="<%= settings.socials?.facebook || '' %>" /></label><label>Instagram<input name="instagram" value="<%= settings.socials?.instagram || '' %>" /></label>
+<label>TikTok<input name="tiktok" value="<%= settings.socials?.tiktok || '' %>" /></label><label>YouTube<input name="youtube" value="<%= settings.socials?.youtube || '' %>" /></label>
+<label>SEO Meta Title<input name="seoTitle" value="<%= settings.seoTitle || settings.metaTitle || '' %>" /></label><label>SEO Keywords<input name="seoKeywords" value="<%= settings.seoKeywords || '' %>" /></label>
+<label class="full">SEO Description<textarea name="seoDescription" rows="4"><%= settings.seoDescription || settings.metaDescription || '' %></textarea></label>
+<label class="full">Running Text<textarea name="runningText" rows="4"><%= settings.runningText || '' %></textarea></label>
+<button class="admin-btn" type="submit">Simpan Settings</button></form></div></main></div>

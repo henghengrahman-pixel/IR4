@@ -1,0 +1,36 @@
+<%- include('../partials/topbar') %>
+<%- include('../partials/ticker') %>
+<%- include('../partials/slider') %>
+<%- include('../partials/auth-buttons') %>
+<main class="container parlay-layout parlay-single-layout">
+  <article class="parlay-single">
+    <a class="badge" href="/category/<%= String(post.category || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') %>"><%= post.category || 'Prediksi Parlay' %></a>
+    <h1><%= post.title %></h1>
+    <div class="single-meta">By <strong><%= post.author || 'Admin' %></strong> • <%= fmtDate(post.createdAt) %> <% (post.tags || []).forEach(function(tag){ %> • <span>#<%= tag %></span><% }) %></div>
+    <% if (post.thumbnail) { %><img class="single-cover" src="<%= post.thumbnail %>" alt="<%= post.title %>" onerror="this.remove()"><% } %>
+    <div class="article-content"><%- post.content %></div>
+    <% if ((post.predictions || []).length) { %>
+      <section class="prediction-board"><h2>Prediksi Parlay Malam Ini</h2>
+      <% post.predictions.forEach(function(league){ %>
+        <div class="league-panel"><h3 class="league-title"><%= league.league %></h3>
+        <% (league.matches || []).forEach(function(match){ const n = match.normalized || {}; %>
+          <article class="match-card-pro">
+            <div class="match-top"><span><%= n.leagueName || league.league %></span><strong><%= match.kickoff || n.kickoffWib || '-' %></strong></div>
+            <div class="teams-row">
+              <div class="team"><% if (match.homeLogo || n.homeLogo) { %><img src="<%= match.homeLogo || n.homeLogo %>" alt="<%= n.homeName || '' %>" onerror="this.remove()"><% } %><b><%= n.homeName || String(match.match || '').split(' vs ')[0] || '-' %></b></div>
+              <div class="vs">VS</div>
+              <div class="team right"><% if (match.awayLogo || n.awayLogo) { %><img src="<%= match.awayLogo || n.awayLogo %>" alt="<%= n.awayName || '' %>" onerror="this.remove()"><% } %><b><%= n.awayName || String(match.match || '').split(' vs ')[1] || '-' %></b></div>
+            </div>
+            <div class="pick-grid"><div><small>1X2</small><b><%= match.pick || n.prediction || '-' %></b></div><div><small>O/U</small><b><%= match.ou || n.overUnder || '-' %></b></div><div><small>Skor</small><b><%= match.score || n.predictedScore || '-' %></b></div><div><small>Odds</small><b><%= match.odds || n.odds || '-' %></b></div></div>
+            <div class="confidence"><span>Confidence <%= match.confidence || n.confidence || 0 %>%</span><i style="width:<%= Math.max(0, Math.min(100, Number(match.confidence || n.confidence || 0))) %>%"></i></div>
+          </article>
+        <% }) %></div>
+      <% }) %></section>
+    <% } %>
+    <div class="parlay-note"><p><strong>Catatan</strong></p><p>Gunakan prediksi ini sebagai referensi tambahan. Selalu kelola risiko dengan batas yang aman.</p></div>
+    <% if (related.length) { %><div class="related"><h3>Related Post</h3><div class="related-grid"><% related.forEach(function(item){ %><a href="<%= parlayUrl(item) %>"><%= item.title %></a><% }) %></div></div><% } %>
+  </article>
+  <%- include('../partials/sidebar-blog', { latestPosts, ads }) %>
+</main>
+<%- include('../partials/footer') %>
+<%- include('../partials/quick-menu') %>
