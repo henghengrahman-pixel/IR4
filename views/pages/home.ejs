@@ -1,13 +1,9 @@
-<div id="loader" class="loader"><div class="loader-card"><% if (settings.logoUrl) { %><img src="<%= settings.logoUrl %>" alt="<%= settings.siteName || 'Logo' %>" style="height:56px;border-radius:10px" onerror="this.remove()"/><% } %><div class="spin"></div><p>Memuat prediksi…</p></div></div>
+<div id="loader" class="loader"><div class="loader-card"><img src="<%= settings.logoUrl %>" alt="<%= settings.siteName %>" style="height:56px;border-radius:10px"/><div class="spin"></div><p>Memuat prediksi…</p></div></div>
 <%- include('../partials/topbar') %>
 <%- include('../partials/ticker') %>
 <%- include('../partials/slider') %>
 <%- include('../partials/auth-buttons') %>
-<section class="hero" id="big-match"><div class="container"><% if (settings.heroBanner) { %><img class="hero-img" src="<%= settings.heroBanner %>" alt="Hero" onerror="this.remove()"><% } %><h1><%= settings.siteName || 'Analisa Pertandingan Hari Ini' %></h1><p><%= settings.siteSubtitle || 'Rangkuman prediksi skor, big match, safe pick, dan liga pilihan.' %></p><p id="dateLine" class="date"></p></div></section>
-<nav class="container quick-anchor" aria-label="Quick access"><a href="#big-match">Big Match</a><a href="#safe-pick">Safe Pick</a><a href="/prediksi-parlay#parlay-hari-ini">Parlay Hari Ini</a><a href="/live">Live Score</a><a href="#liga-besar">Liga Besar</a><a href="#prediksi-terbaru">Prediksi Terbaru</a></nav>
-<section class="container home-block" id="safe-pick"><h2>Safe Pick</h2></section>
-<section class="container home-block" id="liga-besar"><h2>Liga Besar</h2></section>
+<section class="hero"><div class="container"><h1>Analisa Pertandingan Hari Ini</h1><p id="dateLine" class="date"></p></div></section>
 <main class="container" id="content"></main>
-<section class="container home-block" id="prediksi-terbaru"><h2>Prediksi Terbaru</h2><div class="latest-grid"><% (latestPosts || []).forEach(function(post){ %><a href="/prediksi-parlay/<%= post.slug %>"><%= post.title %></a><% }) %></div></section>
 <%- include('../partials/footer') %>
 <%- include('../partials/quick-menu') %>
