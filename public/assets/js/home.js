@@ -275,18 +275,38 @@ async function load(d){
 
 /* ===== Search filter (liga/tim) ===== */
 function applyFilter(q){
+
   const panels = document.querySelectorAll('.panel');
-  panels.forEach(p=>{
-    const ttl = (p.dataset.title||'').toLowerCase();
+
+  panels.forEach(panel => {
+
+    const title =
+      (panel.dataset.title || '').toLowerCase();
+
     let visibleAny = false;
-    p.querySelectorAll('tbody tr').forEach(tr=>{
-      const row = tr.getAttribute('data-row') || '';
-      const show = !q || row.includes(q) || ttl.includes(q);
-      tr.style.display = show ? '' : 'none';
+
+    panel.querySelectorAll('.match-row').forEach(row => {
+
+      const text =
+        row.innerText.toLowerCase();
+
+      const show =
+        !q ||
+        text.includes(q) ||
+        title.includes(q);
+
+      row.style.display =
+        show ? '' : 'none';
+
       if(show) visibleAny = true;
+
     });
-    p.style.display = visibleAny ? '' : 'none';
+
+    panel.style.display =
+      visibleAny ? '' : 'none';
+
   });
+
 }
 const qInput = document.getElementById('q');
 if(qInput) qInput.addEventListener('input', e=>{
