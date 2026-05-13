@@ -1356,51 +1356,56 @@ MODERN MATCH CARD FINAL
   background:#0b1020;
 }
 
+/* =========================================
+DESKTOP
+========================================= */
+
 .match-row{
-  display:grid;
-  grid-template-columns:170px 1fr 90px 1fr 170px;
-  align-items:center;
+  display:flex;
+  flex-direction:column;
   background:#09101f;
   border:1px solid rgba(255,255,255,.05);
   border-radius:20px;
   overflow:hidden;
-  min-height:160px;
 }
 
 .match-time{
-  display:flex;
-  align-items:center;
-  justify-content:center;
   text-align:center;
-  padding:20px;
+  padding:18px 12px;
   color:#fff;
-  font-size:16px;
+  font-size:15px;
   font-weight:800;
-  line-height:1.7;
-  border-right:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
 
-.team{
+.match-main{
+  display:grid;
+  grid-template-columns:1fr 120px 1fr;
+  align-items:center;
+  gap:10px;
+  padding:28px 20px;
+}
+
+.team-side{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:12px;
-  padding:24px;
   text-align:center;
+  gap:12px;
 }
 
-.team img{
+.team-logo{
   width:74px;
   height:74px;
   object-fit:contain;
-  filter:drop-shadow(0 4px 10px rgba(0,0,0,.4));
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));
 }
 
-.team span{
-  color:#fff;
+.team-name{
   font-size:20px;
   font-weight:800;
+  color:#fff;
   line-height:1.4;
 }
 
@@ -1408,89 +1413,103 @@ MODERN MATCH CARD FINAL
   display:flex;
   align-items:center;
   justify-content:center;
-  color:#fff;
-  font-size:38px;
+  font-size:40px;
   font-weight:900;
+  color:#fff;
 }
 
 .match-score{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
   text-align:center;
-  border-left:1px solid rgba(255,255,255,.05);
-  height:100%;
+  padding:22px 10px;
+  border-top:1px solid rgba(255,255,255,.05);
 }
 
 .match-score strong{
-  color:#ffd76a;
+  display:block;
   font-size:52px;
   font-weight:900;
+  color:#ffd76a;
   line-height:1;
 }
 
 .match-score small{
+  display:block;
+  margin-top:8px;
   color:#fff;
   font-size:16px;
   font-weight:700;
 }
 
 /* =========================================
-MOBILE
+TABLET
 ========================================= */
 
 @media(max-width:900px){
+
+.match-main{
+  grid-template-columns:1fr 90px 1fr;
+  padding:24px 12px;
+}
+
+.team-logo{
+  width:64px;
+  height:64px;
+}
+
+.team-name{
+  font-size:17px;
+}
+
+.match-vs{
+  font-size:30px;
+}
+
+.match-score strong{
+  font-size:42px;
+}
+
+}
+
+/* =========================================
+MOBILE
+========================================= */
+
+@media(max-width:768px){
 
 .match-list{
   padding:14px;
   gap:16px;
 }
 
-.match-row{
-  grid-template-columns:1fr;
-  min-height:auto;
-  padding:0;
+.match-main{
+  grid-template-columns:1fr 70px 1fr;
+  gap:6px;
+  padding:22px 10px;
 }
 
-.match-time{
-  border-right:none;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  padding:18px 10px;
+.team-logo{
+  width:56px;
+  height:56px;
+}
+
+.team-name{
   font-size:15px;
 }
 
-.team{
-  padding:20px 10px;
-}
-
-.team img{
-  width:68px;
-  height:68px;
-}
-
-.team span{
-  font-size:18px;
-}
-
 .match-vs{
-  font-size:30px;
-  padding:10px 0;
+  font-size:28px;
 }
 
 .match-score{
-  border-left:none;
-  border-top:1px solid rgba(255,255,255,.05);
   padding:18px 10px;
 }
 
 .match-score strong{
-  font-size:46px;
+  font-size:38px;
 }
 
 .match-score small{
-  font-size:15px;
+  font-size:14px;
 }
 
 }
@@ -1499,56 +1518,27 @@ MOBILE
 SMALL MOBILE
 ========================================= */
 
-@media(max-width:768px){
-
-.match-row{
-  grid-template-columns:1fr;
-  gap:0;
-  padding:0;
-}
-
-.match-time{
-  padding:18px 12px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-
-.match-main{
-  display:grid;
-  grid-template-columns:1fr 70px 1fr;
-  align-items:center;
-  gap:10px;
-  padding:24px 10px;
-}
-
-.team-side{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-}
+@media(max-width:480px){
 
 .team-logo{
-  width:58px;
-  height:58px;
+  width:52px;
+  height:52px;
 }
 
 .team-name{
-  font-size:15px;
-  line-height:1.4;
+  font-size:14px;
 }
 
 .match-vs{
-  font-size:30px;
-}
-
-.match-score{
-  border-top:1px solid rgba(255,255,255,.05);
-  padding:18px 12px;
+  font-size:24px;
 }
 
 .match-score strong{
-  font-size:38px;
+  font-size:34px;
+}
+
+.match-time{
+  font-size:14px;
 }
 
 }
