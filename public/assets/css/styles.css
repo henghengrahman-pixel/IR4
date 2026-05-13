@@ -1325,23 +1325,41 @@ ADMIN SIDEBAR BANNER PREVIEW
 
 }
 /* =========================================
-MODERN MATCH CARD
+FIX MODERN MATCH CARD
 ========================================= */
+
+.modern-panel{
+  margin-bottom:26px;
+}
+
+.modern-panel .head{
+  background:#f5d77a;
+  color:#111;
+  font-weight:900;
+  text-align:center;
+  padding:16px;
+  border-radius:20px 20px 0 0;
+  font-size:20px;
+  letter-spacing:.5px;
+}
 
 .match-list{
   display:flex;
   flex-direction:column;
   gap:16px;
-  padding:16px;
+  background:#0b1020;
+  border-radius:0 0 24px 24px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.06);
 }
 
 .match-row{
   display:grid;
-  grid-template-columns:150px 1fr 90px 1fr 150px;
+  grid-template-columns:140px 1fr 80px 1fr 140px;
   align-items:center;
-  background:#0b1020;
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:24px;
+  background:#11182b;
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:22px;
   overflow:hidden;
 }
 
@@ -1349,7 +1367,8 @@ MODERN MATCH CARD
   text-align:center;
   color:#fff;
   font-weight:700;
-  font-size:15px;
+  font-size:14px;
+  line-height:1.6;
   padding:20px;
 }
 
@@ -1371,8 +1390,8 @@ MODERN MATCH CARD
 
 .team span{
   color:#fff;
-  font-weight:800;
   font-size:18px;
+  font-weight:800;
 }
 
 .match-vs{
@@ -1396,23 +1415,28 @@ MODERN MATCH CARD
 .match-score small{
   color:#fff;
   font-size:15px;
+  display:block;
+  margin-top:4px;
 }
 
-/* MOBILE */
 @media(max-width:900px){
 
 .match-row{
   grid-template-columns:1fr;
-  gap:18px;
+  gap:14px;
   padding:20px;
 }
 
 .match-vs{
-  font-size:26px;
+  font-size:24px;
 }
 
 .match-score strong{
   font-size:34px;
+}
+
+.team{
+  padding:10px;
 }
 
 }
