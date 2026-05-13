@@ -1181,93 +1181,92 @@ body:has(.detail-layout)::before,
 
 }
 /* =========================================
-FIX SIDEBAR ADS + DETAIL BERITA
+NEWS SIDEBAR ADS FINAL
 ========================================= */
 
-/* SIDEBAR ADS */
-.side-banner{
-  background:transparent !important;
-  padding:0 !important;
-  border:none !important;
-  box-shadow:none !important;
+.sidebar-ads{
+  padding:14px !important;
   overflow:hidden;
 }
 
-.side-banner img{
-  width:100% !important;
+.sidebar-ads a{
   display:block;
-  border-radius:18px !important;
+  width:100%;
+}
+
+.sidebar-ads img{
+  width:100%;
+  display:block;
+  border-radius:18px;
   object-fit:cover;
-  background:#000 !important;
-  border:1px solid rgba(255,255,255,.08) !important;
+  border:1px solid rgba(255,255,255,.08);
+  background:#000;
 }
 
-/* SIDEBAR WIDTH */
-.news-sidebar{
-  width:360px !important;
-  min-width:360px !important;
-}
+/* =========================================
+NEWS LAYOUT
+========================================= */
 
-/* HALAMAN BERITA */
 .news-index-premium{
-  max-width:1400px !important;
-  grid-template-columns:minmax(0,1fr) 360px !important;
+  max-width:1400px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 360px;
+  gap:26px;
 }
 
-/* DETAIL BERITA */
+.news-sidebar{
+  width:360px;
+  min-width:360px;
+}
+
+/* =========================================
+DETAIL PAGE FIX
+========================================= */
+
+.detail-layout,
 .news-detail-premium{
-  max-width:1400px !important;
-  grid-template-columns:minmax(0,1fr) 360px !important;
+  background:transparent !important;
 }
 
-/* HAPUS PUTIH DI DETAIL */
-.news-detail-premium,
-.news-detail-premium *{
-  background-image:none !important;
-}
-
-/* ARTICLE */
 .article-wrap{
   background:#0b1020 !important;
-  border:1px solid rgba(255,255,255,.06) !important;
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:24px;
 }
 
-/* SIDEBAR */
-.side-box{
-  background:#0b1020 !important;
-}
+/* =========================================
+HAPUS PUTIH-PUTIH
+========================================= */
 
-/* RELATED */
-.related-grid a{
-  background:#0b1020 !important;
-}
-
-/* BODY KHUSUS BERITA */
-body:has(.news-index-premium),
-body:has(.news-detail-premium){
-  background:#000 !important;
-}
-
-/* MATIKAN BACKGROUND PUTIH */
-body:has(.news-detail-premium)::before,
-body:has(.news-detail-premium)::after,
-.news-detail-premium::before,
-.news-detail-premium::after{
+.article-wrap::before,
+.article-wrap::after,
+.news-layout::before,
+.news-layout::after{
   display:none !important;
   background:none !important;
 }
 
-/* MOBILE */
+/* =========================================
+BODY BERITA
+========================================= */
+
+body:has(.news-layout){
+  background:#000 !important;
+}
+
+/* =========================================
+MOBILE
+========================================= */
+
 @media(max-width:980px){
 
-.news-index-premium,
-.news-detail-premium{
-  grid-template-columns:1fr !important;
+.news-index-premium{
+  grid-template-columns:1fr;
 }
 
 .news-sidebar{
-  width:100% !important;
-  min-width:100% !important;
+  width:100%;
+  min-width:100%;
 }
 
 }
