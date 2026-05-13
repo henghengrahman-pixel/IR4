@@ -164,7 +164,7 @@ function panelSkor(title, rows, flag){
             ${r.kickoff || '-'}
           </div>
 
-          <div class="team team-home">
+          <div class="team-side">
 
             <img
               src="${homeLogo}"
