@@ -389,6 +389,10 @@ export async function settingsUpdate(req,res){
 
     ...old,
 
+    /* =====================================
+    BRANDING
+    ===================================== */
+
     siteName:
       clean(req.body.siteName),
 
@@ -413,11 +417,19 @@ export async function settingsUpdate(req,res){
     footerText:
       clean(req.body.footerText),
 
+    /* =====================================
+    SEO
+    ===================================== */
+
     metaTitle:
       clean(req.body.metaTitle) || 'Prediksi Bola',
 
     metaDescription:
       clean(req.body.metaDescription),
+
+    /* =====================================
+    LOGO
+    ===================================== */
 
     logoUrl:
       uploadedUrl(files.logoFile?.[0]) ||
@@ -426,6 +438,10 @@ export async function settingsUpdate(req,res){
     faviconUrl:
       uploadedUrl(files.faviconFile?.[0]) ||
       clean(req.body.faviconUrl),
+
+    /* =====================================
+    BACKGROUND
+    ===================================== */
 
     backgroundDesktop:
       uploadedUrl(files.backgroundDesktopFile?.[0]) ||
@@ -438,21 +454,35 @@ export async function settingsUpdate(req,res){
     overlayOpacity:
       clean(req.body.overlayOpacity) || '0',
 
+    /* =====================================
+    SIDEBAR ADS
+    ===================================== */
+
     sidebarBanner:
       uploadedUrl(files.sidebarBannerFile?.[0]) ||
       clean(req.body.sidebarBanner),
+
+    sidebarBannerLink:
+      clean(req.body.sidebarBannerLink),
+
+    /* =====================================
+    BERITA SETTINGS
+    ===================================== */
 
     newsSearchTitle:
       clean(req.body.newsSearchTitle) || 'Cari Berita',
 
     newsSearchPlaceholder:
-      clean(req.body.newsSearchPlaceholder) || 'Cari klub, liga, pemain...',
+      clean(req.body.newsSearchPlaceholder) ||
+      'Cari klub, liga, pemain...',
 
     newsTrendingTitle:
-      clean(req.body.newsTrendingTitle) || 'Trending News',
+      clean(req.body.newsTrendingTitle) ||
+      'Trending News',
 
     newsCategoryTitle:
-      clean(req.body.newsCategoryTitle) || 'Kategori Populer'
+      clean(req.body.newsCategoryTitle) ||
+      'Kategori Populer'
   });
 
   res.redirect('/admin/settings');
