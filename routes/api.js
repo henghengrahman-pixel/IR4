@@ -415,18 +415,41 @@ router.get("/api/fixtures", async (req, res) => {
         const match = `${h.name} vs ${a.name}`;
         const pred = predictFromRanks(h.id, a.id, rankMap);
         const tipName = pred.tip === "Home" ? h.name : pred.tip === "Away" ? a.name : "Draw";
-        return {
-          fixtureId: m.fixture.id,              // <-- TAMBAHAN
-          homeId: h.id,                         // <-- TAMBAHAN
-          awayId: a.id,                         // <-- TAMBAHAN
-          kickoff: toWIB(m.fixture.date),
-          match,
-          score: `${m.goals.home ?? "-"} - ${m.goals.away ?? "-"}`,
-          tip: tipName,
-          confidence: pred.conf,
-          predictedScore: estimateScoreFromTip(match, tipName, pred.conf),
-          _prio: matchPriorityFromLabel(match)
-        };
+return {
+  fixtureId: m.fixture.id,
+
+  homeId: h.id,
+  awayId: a.id,
+
+  homeName: h.name || "Home",
+  awayName: a.name || "Away",
+
+  homeLogo:
+    h.logo ||
+    m.teams?.home?.logo ||
+    "",
+
+  awayLogo:
+    a.logo ||
+    m.teams?.away?.logo ||
+    "",
+
+  kickoff: toWIB(m.fixture.date),
+
+  match,
+
+  score: `${m.goals.home ?? "-"} - ${m.goals.away ?? "-"}`,
+
+  tip: tipName,
+
+  confidence: pred.conf,
+
+  predictedScore: estimateScoreFromTip(
+    match,
+    tipName,
+    pred.conf
+  )
+};
       });
       rows.sort((r1, r2) => (r2._prio || 0) - (r1._prio || 0));
       rows = rows.map(({ _prio, ...rest }) => rest);
