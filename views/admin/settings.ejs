@@ -271,29 +271,31 @@
             placeholder="https://..."
           />
         </label>
+<% if (settings.sidebarBanner) { %>
 
-        <% if (settings.sidebarBanner) { %>
+<div class="full">
 
-        <div class="full">
+  <div class="preview-box sidebar-preview">
 
-          <div class="preview-box">
+    <div class="preview-title">
+      Preview Banner Sidebar
+    </div>
 
-            <div class="preview-title">
-              Preview Banner Sidebar
-            </div>
+    <div class="sidebar-preview-wrap">
 
-            <img
-              src="<%= settings.sidebarBanner %>"
-              alt="Sidebar Banner"
-              class="preview-image"
-            >
+      <img
+        src="<%= settings.sidebarBanner %>"
+        alt="Sidebar Banner"
+        class="preview-image sidebar-preview-image"
+      >
 
-          </div>
+    </div>
 
-        </div>
+  </div>
 
-        <% } %>
+</div>
 
+<% } %>
         <!-- =====================================
         SEO
         ====================================== -->
