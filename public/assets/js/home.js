@@ -107,32 +107,117 @@ function estimateScore(r){
 
 /* ====== FIX: tampilkan bendera di judul panel ====== */
 function panelSkor(title, rows, flag){
+
   return `
-  <section class="panel" data-title="${title}">
+  <section class="panel modern-panel" data-title="${title}">
+
     <div class="head">
-      ${flag ? `<img src="${flag}" alt="" onerror="this.style.display='none'" style="height:14px;vertical-align:-2px;margin-right:8px;border-radius:2px" />` : ``}
+      ${flag ? `
+        <img
+          src="${flag}"
+          alt=""
+          onerror="this.style.display='none'"
+          style="height:14px;vertical-align:-2px;margin-right:8px;border-radius:2px"
+        />
+      ` : ``}
+
       ${title.toUpperCase()}
     </div>
-    <div class="twrap">
-      <table class="t">
-        <thead>
-          <tr>
-            <th style="width:170px">Tanggal & Waktu (WIB)</th>
-            <th>PREDIKSI SKOR</th>
-            <th style="width:110px">Skor</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map((r,i)=>`
-            <tr class="${i%2?'alt':''}" data-row="${(r.match||'').toLowerCase()}">
-              <td class="time">${r.kickoff || '-'}</td>
-              <td>${r.match}</td>
-              <td class="score">${estimateScore(r)}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
+
+    <div class="match-list">
+
+      ${rows.map((r) => {
+
+        const homeLogo =
+          r.homeLogo ||
+          r.home_logo ||
+          r.home?.logo ||
+          r.teams?.home?.logo ||
+          'https://placehold.co/80x80?text=HOME';
+
+        const awayLogo =
+          r.awayLogo ||
+          r.away_logo ||
+          r.away?.logo ||
+          r.teams?.away?.logo ||
+          'https://placehold.co/80x80?text=AWAY';
+
+        const homeName =
+          r.homeName ||
+          r.home ||
+          r.teams?.home?.name ||
+          (r.match || '').split(' vs ')[0] ||
+          'Home';
+
+        const awayName =
+          r.awayName ||
+          r.away ||
+          r.teams?.away?.name ||
+          (r.match || '').split(' vs ')[1] ||
+          'Away';
+
+        return `
+
+        <div class="match-row">
+
+          <div class="match-time">
+            ${r.kickoff || '-'}
+          </div>
+
+          <div class="team team-home">
+
+            <img
+              src="${homeLogo}"
+              alt="${homeName}"
+              onerror="this.src='https://placehold.co/80x80?text=TEAM'"
+            >
+
+            <span>
+              ${homeName}
+            </span>
+
+          </div>
+
+          <div class="match-vs">
+            VS
+          </div>
+
+          <div class="team team-away">
+
+            <img
+              src="${awayLogo}"
+              alt="${awayName}"
+              onerror="this.src='https://placehold.co/80x80?text=TEAM'"
+            >
+
+            <span>
+              ${awayName}
+            </span>
+
+          </div>
+
+          <div class="match-score">
+
+            <strong>
+              ${estimateScore(r)}
+            </strong>
+
+            <small>
+              ${r.tip || ''}
+            </small>
+
+          </div>
+
+        </div>
+
+        `;
+
+      }).join('')}
+
     </div>
-  </section>`;
+
+  </section>
+  `;
 }
 
 /* === render PREDIKSI === */
