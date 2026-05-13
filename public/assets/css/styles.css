@@ -1270,3 +1270,57 @@ MOBILE
 }
 
 }
+/* =========================================
+ADMIN SIDEBAR BANNER PREVIEW
+========================================= */
+
+.preview-box{
+  width:100%;
+  max-width:520px;
+  background:#0f1729;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  padding:16px;
+  overflow:hidden;
+  box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.preview-title{
+  font-size:15px;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:14px;
+}
+
+.preview-image{
+  width:100%;
+  max-width:100%;
+  display:block;
+  border-radius:18px;
+  object-fit:cover;
+  border:1px solid rgba(255,255,255,.06);
+  background:#000;
+}
+
+/* KHUSUS SIDEBAR ADS */
+.preview-box.sidebar-preview{
+  max-width:360px;
+}
+
+.preview-box.sidebar-preview .preview-image{
+  aspect-ratio:4/5;
+  object-fit:cover;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+.preview-box{
+  max-width:100%;
+}
+
+.preview-box.sidebar-preview{
+  max-width:100%;
+}
+
+}
