@@ -158,58 +158,67 @@ function panelSkor(title, rows, flag){
 
         return `
 
-        <div class="match-row">
+return `
 
-          <div class="match-time">
-            ${r.kickoff || '-'}
-          </div>
+<div class="match-row">
 
-          <div class="team-side">
+  <div class="match-time">
+    ${r.kickoff || '-'}
+  </div>
 
-            <img
-              src="${homeLogo}"
-              alt="${homeName}"
-              onerror="this.src='https://placehold.co/80x80?text=TEAM'"
-            >
+  <div class="match-main">
 
-            <span>
-              ${homeName}
-            </span>
+    <div class="team-side">
 
-          </div>
+      <img
+        src="${homeLogo}"
+        alt="${homeName}"
+        class="team-logo"
+        onerror="this.src='https://placehold.co/80x80?text=TEAM'"
+      >
 
-          <div class="match-vs">
-            VS
-          </div>
+      <span class="team-name">
+        ${homeName}
+      </span>
 
-          <div class="team team-away">
+    </div>
 
-            <img
-              src="${awayLogo}"
-              alt="${awayName}"
-              onerror="this.src='https://placehold.co/80x80?text=TEAM'"
-            >
+    <div class="match-vs">
+      VS
+    </div>
 
-            <span>
-              ${awayName}
-            </span>
+    <div class="team-side">
 
-          </div>
+      <img
+        src="${awayLogo}"
+        alt="${awayName}"
+        class="team-logo"
+        onerror="this.src='https://placehold.co/80x80?text=TEAM'"
+      >
 
-          <div class="match-score">
+      <span class="team-name">
+        ${awayName}
+      </span>
 
-            <strong>
-              ${estimateScore(r)}
-            </strong>
+    </div>
 
-            <small>
-              ${r.tip || ''}
-            </small>
+  </div>
 
-          </div>
+  <div class="match-score">
 
-        </div>
+    <strong>
+      ${estimateScore(r)}
+    </strong>
 
+    <small>
+      ${r.tip || ''}
+    </small>
+
+  </div>
+
+</div>
+
+`;
         `;
 
       }).join('')}
