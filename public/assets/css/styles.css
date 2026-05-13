@@ -1181,136 +1181,70 @@ body:has(.detail-layout)::before,
 
 }
 /* =========================================
-ADMIN SETTINGS PREMIUM
+SIDEBAR ADS PREMIUM
 ========================================= */
 
-.form-divider{
-  margin-top:10px;
-  margin-bottom:8px;
-}
-
-.form-divider h2{
-  margin:0;
-  font-size:18px;
-  font-weight:800;
-  color:#fff;
-  padding-bottom:10px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-.preview-box{
+.side-banner{
+  display:block;
+  width:100%;
+  margin-top:18px;
+  border-radius:22px;
+  overflow:hidden;
   background:#10182b;
   border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-  padding:18px;
-  overflow:hidden;
-  box-shadow:0 8px 25px rgba(0,0,0,.35);
-}
-
-.preview-title{
-  font-size:15px;
-  font-weight:700;
-  color:#fff;
-  margin-bottom:14px;
-}
-
-.preview-image{
-  width:100%;
-  max-width:340px;
-  display:block;
-  border-radius:18px;
-  object-fit:cover;
-  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  box-shadow:0 12px 35px rgba(0,0,0,.35);
   transition:.3s ease;
 }
 
-.preview-image:hover{
-  transform:scale(1.02);
+.side-banner:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
 }
 
-.logo-preview{
-  max-width:180px;
-  object-fit:contain;
-  background:#0b1020;
-  padding:14px;
-}
-
-/* =========================================
-FORM PREMIUM
-========================================= */
-
-.admin-form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:18px;
-}
-
-.admin-form-grid label{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  font-size:14px;
-  font-weight:600;
-  color:#dbe5ff;
-}
-
-.admin-form-grid input,
-.admin-form-grid textarea,
-.admin-form-grid select{
+.side-banner img{
   width:100%;
-  background:#0f1729;
-  border:1px solid rgba(255,255,255,.08);
-  color:#fff;
-  border-radius:14px;
-  padding:14px 16px;
-  outline:none;
-  transition:.25s ease;
-}
-
-.admin-form-grid input:focus,
-.admin-form-grid textarea:focus,
-.admin-form-grid select:focus{
-  border-color:#6a3dff;
-  box-shadow:0 0 0 3px rgba(106,61,255,.15);
-}
-
-.admin-form-grid textarea{
-  resize:vertical;
-  min-height:120px;
-}
-
-.admin-form-grid .full{
-  grid-column:1/-1;
+  display:block;
+  object-fit:cover;
+  border-radius:22px;
 }
 
 /* =========================================
-BUTTON
+SIDEBAR WIDTH
 ========================================= */
 
-.admin-btn{
-  height:52px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(180deg,#7b4dff,#5b2df5);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-  transition:.25s ease;
-  box-shadow:0 10px 25px rgba(91,45,245,.35);
-}
-
-.admin-btn:hover{
-  transform:translateY(-2px);
-  opacity:.95;
+.news-sidebar{
+  width:360px;
+  min-width:360px;
 }
 
 /* =========================================
-UPLOAD FILE
+DESKTOP ADS SIZE
 ========================================= */
 
-input[type="file"]{
-  padding:12px !important;
-  background:#0f1729;
+@media(min-width:1024px){
+
+.side-banner img{
+  max-height:720px;
+  object-fit:cover;
+}
+
+}
+
+/* =========================================
+TABLET
+========================================= */
+
+@media(max-width:1023px){
+
+.news-sidebar{
+  width:100%;
+  min-width:100%;
+}
+
+.side-banner img{
+  max-height:500px;
+}
+
 }
 
 /* =========================================
@@ -1319,16 +1253,15 @@ MOBILE
 
 @media(max-width:768px){
 
-.admin-form-grid{
-  grid-template-columns:1fr;
+.side-banner{
+  border-radius:18px;
 }
 
-.preview-image{
-  max-width:100%;
-}
-
-.logo-preview{
-  max-width:150px;
+.side-banner img{
+  width:100%;
+  max-height:none;
+  object-fit:contain;
+  border-radius:18px;
 }
 
 }
