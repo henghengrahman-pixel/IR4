@@ -1,9 +1,0 @@
-{
-  "enabled": true,
-  "running": false,
-  "lastRunAt": null,
-  "lastSuccessAt": null,
-  "lastError": null,
-  "lastCreatedSlug": null,
-  "nextRunAt": "2026-05-12T17:00:02.523Z"
-}
