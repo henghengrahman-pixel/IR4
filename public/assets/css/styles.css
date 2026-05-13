@@ -1325,7 +1325,7 @@ ADMIN SIDEBAR BANNER PREVIEW
 
 }
 /* =========================================
-MODERN MATCH CARD FINAL
+MODERN MATCH CARD FINAL FIX
 ========================================= */
 
 .modern-panel{
@@ -1351,40 +1351,50 @@ MODERN MATCH CARD FINAL
 .match-list{
   display:flex;
   flex-direction:column;
-  gap:18px;
-  padding:18px;
+  gap:16px;
+  padding:16px;
   background:#0b1020;
 }
 
 /* =========================================
-DESKTOP
+MATCH ROW
 ========================================= */
 
 .match-row{
-  display:flex;
-  flex-direction:column;
   background:#09101f;
   border:1px solid rgba(255,255,255,.05);
   border-radius:20px;
   overflow:hidden;
 }
 
+/* =========================================
+TIME
+========================================= */
+
 .match-time{
   text-align:center;
-  padding:18px 12px;
   color:#fff;
   font-size:15px;
   font-weight:800;
+  padding:18px 12px;
   border-bottom:1px solid rgba(255,255,255,.05);
 }
 
+/* =========================================
+MAIN MATCH
+========================================= */
+
 .match-main{
   display:grid;
-  grid-template-columns:1fr 120px 1fr;
+  grid-template-columns:1fr 100px 1fr;
   align-items:center;
   gap:10px;
-  padding:28px 20px;
+  padding:26px 20px;
 }
+
+/* =========================================
+TEAM
+========================================= */
 
 .team-side{
   display:flex;
@@ -1396,39 +1406,47 @@ DESKTOP
 }
 
 .team-logo{
-  width:74px;
-  height:74px;
+  width:72px;
+  height:72px;
   object-fit:contain;
   filter:drop-shadow(0 4px 10px rgba(0,0,0,.45));
 }
 
 .team-name{
-  font-size:20px;
-  font-weight:800;
   color:#fff;
+  font-size:18px;
+  font-weight:800;
   line-height:1.4;
 }
+
+/* =========================================
+VS
+========================================= */
 
 .match-vs{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:40px;
-  font-weight:900;
   color:#fff;
+  font-size:34px;
+  font-weight:900;
 }
+
+/* =========================================
+SCORE
+========================================= */
 
 .match-score{
   text-align:center;
-  padding:22px 10px;
   border-top:1px solid rgba(255,255,255,.05);
+  padding:20px 12px;
 }
 
 .match-score strong{
   display:block;
-  font-size:52px;
-  font-weight:900;
   color:#ffd76a;
+  font-size:46px;
+  font-weight:900;
   line-height:1;
 }
 
@@ -1436,7 +1454,7 @@ DESKTOP
   display:block;
   margin-top:8px;
   color:#fff;
-  font-size:16px;
+  font-size:15px;
   font-weight:700;
 }
 
@@ -1447,17 +1465,17 @@ TABLET
 @media(max-width:900px){
 
 .match-main{
-  grid-template-columns:1fr 90px 1fr;
-  padding:24px 12px;
+  grid-template-columns:1fr 80px 1fr;
+  padding:24px 14px;
 }
 
 .team-logo{
-  width:64px;
-  height:64px;
+  width:62px;
+  height:62px;
 }
 
 .team-name{
-  font-size:17px;
+  font-size:16px;
 }
 
 .match-vs{
@@ -1465,7 +1483,7 @@ TABLET
 }
 
 .match-score strong{
-  font-size:42px;
+  font-size:40px;
 }
 
 }
@@ -1478,7 +1496,7 @@ MOBILE
 
 .match-list{
   padding:14px;
-  gap:16px;
+  gap:14px;
 }
 
 .match-main{
@@ -1505,10 +1523,14 @@ MOBILE
 }
 
 .match-score strong{
-  font-size:38px;
+  font-size:36px;
 }
 
 .match-score small{
+  font-size:14px;
+}
+
+.match-time{
   font-size:14px;
 }
 
@@ -1521,8 +1543,8 @@ SMALL MOBILE
 @media(max-width:480px){
 
 .team-logo{
-  width:52px;
-  height:52px;
+  width:50px;
+  height:50px;
 }
 
 .team-name{
@@ -1534,11 +1556,11 @@ SMALL MOBILE
 }
 
 .match-score strong{
-  font-size:34px;
+  font-size:32px;
 }
 
 .match-time{
-  font-size:14px;
+  font-size:13px;
 }
 
 }
