@@ -1077,3 +1077,106 @@ MOBILE
     grid-template-columns:1fr;
   }
 }
+/* =========================
+TOPBAR STICKY
+========================= */
+
+.topbar,
+.site-header,
+.navbar,
+header{
+  position:sticky;
+  top:0;
+  z-index:9999;
+  width:100%;
+  background:#050505;
+  box-shadow:0 2px 15px rgba(0,0,0,.35);
+}
+
+/* =========================
+BACKGROUND BERITA FULL HITAM
+========================= */
+
+.news-layout,
+.detail-layout{
+  background:#000 !important;
+  border-radius:0;
+  position:relative;
+  z-index:2;
+}
+
+.news-page,
+.berita-page,
+.article-page{
+  background:#000 !important;
+}
+
+/* container berita */
+.news-main,
+.article-wrap,
+.news-card,
+.side-box,
+.related-grid a{
+  background:#0b1020 !important;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+}
+
+/* detail artikel */
+.article-wrap{
+  background:#0b1020 !important;
+}
+
+/* body halaman berita */
+body:has(.news-layout),
+body:has(.detail-layout){
+  background:#000 !important;
+}
+
+/* matikan background gambar di berita */
+body:has(.news-layout)::before,
+body:has(.detail-layout)::before,
+.news-layout::before,
+.detail-layout::before{
+  display:none !important;
+  background:none !important;
+}
+
+/* title berita */
+.article-wrap h1,
+.news-card h2,
+.news-title{
+  color:#fff;
+}
+
+/* text berita */
+.article-content,
+.article-content p,
+.news-excerpt{
+  color:#d7dcec;
+}
+
+/* sidebar */
+.side-box h3{
+  color:#fff;
+}
+
+/* badge */
+.news-badge{
+  background:#d61f3a;
+  color:#fff;
+}
+
+/* responsive */
+@media(max-width:768px){
+
+.news-layout,
+.detail-layout{
+  padding:12px;
+}
+
+.article-wrap{
+  padding:20px;
+}
+
+}
